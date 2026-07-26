@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { u } from '../lib/url.js';
+---
+
+<Base
+  title="Biog — Ben Ware"
+  description="Ben Ware is a philosopher and social theorist based in London, UK."
+>
+  <Nav />
+  <main class="container">
+    <div class="page-header">
+      <p class="eyebrow">Biog — 01</p>
+      <h1>Biog</h1>
+    </div>
+
+    <div class="biog">
+      <img
+        class="biog__portrait"
+        src={u('/images/ben-ware-portrait.jpg')}
+        alt="Portrait of Ben Ware"
+        width="320"
+        height="400"
+      />
+
+      <p>Ben Ware is a philosopher and social theorist based in London, UK.</p>
+
+      <p>
+        He is Co-Director of the
+        <!-- TODO: verify KCL centre URL with client -->
+        <a
+          href="https://www.kcl.ac.uk/research/centre-for-philosophy-and-visual-arts"
+          target="_blank"
+          rel="noopener"
+          data-todo="verify-kcl-url">Centre for Philosophy and Art at King’s College London</a
+        > where he is also a Senior Research Fellow in Philosophy. He also serves on the Faculty of
+        the para-academic institute
+        <!-- TODO: verify BICAR URL with client -->
+        <a href="https://www.bicar.org" target="_blank" rel="noopener" data-todo="verify-bicar-url"
+          >BICAR</a
+        >.
+      </p>
+
+      <p>
+        His books include <a href={u('/books#on-extinction')}><em>On Extinction: Beginning Again at the End</em></a>
+        (Verso, 2024); <a href={u('/books#living-wrong-life-rightly')}><em>Living Wrong Life Rightly</em></a>
+        (Palgrave, 2017); and
+        <a href={u('/books#dialectic-of-the-ladder')}><em>Dialectic of the Ladder: Wittgenstein, the ‘Tractatus’ and Modernism</em></a>
+        (Bloomsbury, 2015). He is also editor of
+        <a href={u('/books#bacon-disfigured')}><em>Bacon Disfigured</em></a> (Thames &amp; Hudson, 2026); and
+        <a href={u('/books#bacon-painting-philosophy-psychoanalysis')}><em>Francis Bacon: Painting, Philosophy, Psychoanalysis</em></a>
+        (Thames &amp; Hudson, 2019) — both collaborations with the Estate of Francis Bacon. His
+        writing has appeared in <em>Los Angeles Review of Books</em>, <em>e-flux</em>,
+        <em>TANK</em>, and <em>Lit Hub</em>, among others.
+      </p>
+
+      <p>
+        His forthcoming book explores the politics and moral psychology of <em>Coldness</em>.
+      </p>
+
+      <p>
+        He is represented by Clare Conville at
+        <!-- TODO: verify C&W Agency URL with client -->
+        <a href="https://cwagency.co.uk" target="_blank" rel="noopener" data-todo="verify-cw-url"
+          >C&amp;W Agency</a
+        >.
+      </p>
+    </div>
+  </main>
+  <Footer />
+</Base>

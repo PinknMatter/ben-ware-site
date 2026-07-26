@@ -1,0 +1,106 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { books } from '../data/books.js';
+
+const VISIBLE_ENDORSEMENTS = 3;
+import { u } from '../lib/url.js';
+---
+
+<Base
+  title="Books — Ben Ware"
+  description="Books by Ben Ware — philosopher and social theorist. On Extinction, Living Wrong Life Rightly, Dialectic of the Ladder, Bacon Disfigured, Francis Bacon: Painting, Philosophy, Psychoanalysis."
+>
+  <Nav />
+  <main class="container">
+    <div class="page-header">
+      <p class="eyebrow">Books — 05</p>
+      <h1>Books</h1>
+    </div>
+
+    {
+      books.map((book, i) => (
+        <>
+          <hr class="rule" />
+          <article class="book" id={book.slug}>
+            <div>
+              <img
+                class="book__cover"
+                src={u(book.cover)}
+                alt={`Cover of ${book.shortTitle}`}
+                width="340"
+                height="510"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                data-todo={book.coverIsPlaceholder ? 'cover-living-wrong-life' : undefined}
+              />
+            </div>
+            <div>
+              <p class="eyebrow">
+                {book.publisher} — {book.year}
+                {book.role ? ` — ${book.role}` : ''}
+              </p>
+              <h2 class="book__title">{book.title}</h2>
+              <p class="book__blurb">{book.blurb}</p>
+              <div class="book__links">
+                <a
+                  class="text-link"
+                  href={u(book.publisherUrl)}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Publisher ↗
+                </a>
+                {/* TODO: real Amazon links to follow from client */}
+                <a class="text-link" href="#" data-todo="amazon-link">
+                  Amazon ↗
+                </a>
+              </div>
+
+              {book.endorsements.length > 0 && (
+                <div class="endorsements">
+                  <p class="eyebrow">Praise</p>
+                  {book.endorsements.slice(0, VISIBLE_ENDORSEMENTS).map((e) => (
+                    <blockquote class="endorsement">
+                      <p>“{e.quote}”</p>
+                      <cite set:html={e.source} />
+                    </blockquote>
+                  ))}
+                  {book.endorsements.length > VISIBLE_ENDORSEMENTS && (
+                    <>
+                      <div class="endorsements__more" hidden>
+                        {book.endorsements.slice(VISIBLE_ENDORSEMENTS).map((e) => (
+                          <blockquote class="endorsement">
+                            <p>“{e.quote}”</p>
+                            <cite set:html={e.source} />
+                          </blockquote>
+                        ))}
+                      </div>
+                      <button class="praise-toggle" type="button" aria-expanded="false">
+                        More praise ↓
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </article>
+        </>
+      ))
+    }
+  </main>
+  <Footer />
+
+  <script>
+    // Plain-JS collapse for long endorsement lists.
+    document.querySelectorAll('.praise-toggle').forEach((button) => {
+      button.addEventListener('click', () => {
+        const more = button.previousElementSibling;
+        const expanded = button.getAttribute('aria-expanded') === 'true';
+        more.hidden = expanded;
+        button.setAttribute('aria-expanded', String(!expanded));
+        button.textContent = expanded ? 'More praise ↓' : 'Less praise ↑';
+      });
+    });
+  </script>
+</Base>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900">
+  <!-- TODO: replace with real cover scan for Living Wrong Life Rightly (data-todo: cover-living-wrong-life) -->
+  <rect width="600" height="900" fill="#111111"/>
+  <text x="60" y="200" fill="#FAFAF8" font-family="'Space Mono', 'Courier New', monospace" font-weight="700" font-size="52">
+    <tspan x="60" dy="0">Living</tspan>
+    <tspan x="60" dy="64">Wrong Life</tspan>
+    <tspan x="60" dy="64">Rightly</tspan>
+  </text>
+  <text x="60" y="820" fill="#FAFAF8" font-family="'Space Mono', 'Courier New', monospace" font-size="22" opacity="0.6">Ben Ware</text>
+</svg>

@@ -1,0 +1,1198 @@
+---
+// VERSION 1 — "Books as the Center"
+// White page per the client Figma (node 6:2). Hero: covers in grey window
+// mats in a drag carousel, giant "BenWare" + subtitle/London clock at the
+// bottom. Below the hero: an editorial catalogue — statement, numbered
+// sections (Writing / Interviews / Talks) on one left edge, Space Mono
+// meta against Spectral display type, red reserved for hover. Sticky nav;
+// a small "Ben Ware" logo appears on its left once the hero title has
+// scrolled out of view.
+//
+// Carousel mechanic adapted from Codrops' "Horizontal Parallax Gallery"
+// (David Faure, MIT): a lerped scroll target (drag + horizontal wheel);
+// covers slide through their grey mats proportionally to the row's motion
+// lag, settling dead-centre at rest. Vertical wheel scrolls the page
+// normally — no scroll-jacking.
+import Base from '../layouts/Base.astro';
+import { bookBySlug, v1Order } from '../data/books.js';
+import { writing, interviews, videos } from '../data/writing.js';
+
+const sequence = v1Order.map((slug, i) => ({
+  ...bookBySlug[slug],
+  index: String(i + 1).padStart(2, '0'),
+}));
+
+// Four most recent pieces for the writing index.
+const recentWriting = writing.slice(0, 4);
+const pad = (n) => String(n).padStart(2, '0');
+const year = new Date().getFullYear();
+
+// YouTube/Vimeo → privacy-friendly embed URL; anything else (IAI) gets a
+// typographic link card instead of a player.
+function embedUrl(url) {
+  const yt = url.match(/[?&]v=([\w-]+)/);
+  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
+  const vm = url.match(/vimeo\.com\/(\d+)/);
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
+  return null;
+}
+const videoCards = videos.map((v, i) => ({ ...v, index: pad(i + 1), embed: embedUrl(v.url) }));
+const shownVideos = videoCards.slice(0, 2);
+import { u } from '../lib/url.js';
+---
+
+<Base title="Ben Ware — Philosopher and social theorist">
+  <main class="v1">
+    <!-- Sticky nav. Wordmark is the hero identity; the small logo fades in
+         on the left once the hero title leaves the viewport. -->
+    <nav class="v1-nav" aria-label="Main">
+      <a class="v1-nav__logo" href={u('/v1')}>Ben Ware</a>
+      <ul>
+        <li><a href={u('/books')}>Books</a></li>
+        <li><a href={u('/writing')}>Media</a></li>
+        <li><a href={u('/biog')}>Biog</a></li>
+      </ul>
+    </nav>
+
+    <section class="v1-hero" aria-label="Books">
+      <div class="v1-carousel">
+        <div class="v1-track">
+          {
+            sequence.map((book) => (
+              <a
+                class="v1-book"
+                href={u(`/books#${book.slug}`)}
+                aria-label={`${book.shortTitle} — view book`}
+                draggable="false"
+              >
+                <span class="v1-book__frame">
+                  <img
+                    class="v1-book__cover"
+                    src={u(book.cover)}
+                    alt={`Cover of ${book.shortTitle}`}
+                    loading="eager"
+                    draggable="false"
+                    data-todo={book.coverIsPlaceholder ? 'cover-living-wrong-life' : undefined}
+                  />
+                </span>
+                <span class="v1-book__caption eyebrow">
+                  {book.index} — {book.shortTitle}, {book.year}
+                </span>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="v1-title">
+        <h1 class="v1-name" aria-label="Ben Ware">BenWare</h1>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------------
+         Below the hero: an editorial catalogue. One left edge (the hero's
+         own padding), numbered sections, Spectral display type against
+         Space Mono meta. Red appears only on hover.
+    ------------------------------------------------------------------- -->
+    <div class="v1-body">
+      <!-- Lead: the statement hard against the hero fold on the left,
+           one light interview quote on the right with an explore link.
+           No header — the page starts the moment you move. -->
+      <section class="v1-lead" id="profile" aria-label="Profile">
+        <div class="v1-statement" data-reveal>
+          <p class="v1-statement__text" data-reveal-item>
+            Philosopher &amp; social theorist<br />
+            writing on <a href={u('/books#on-extinction')}>extinction</a>,
+            <a href={u('/books#living-wrong-life-rightly')}>modernism</a>,<br />
+            and the art of <a href={u('/books#bacon-disfigured')}>Francis&nbsp;Bacon</a>.
+          </p>
+          <p class="v1-statement__aside" data-reveal-item>
+            Co-Director of the Centre for Philosophy and Art<br />
+            at King's College London
+          </p>
+        </div>
+        <div class="v1-lead__quote" data-reveal>
+          <a
+            class="v1-quote"
+            href={u(interviews[0].url)}
+            target="_blank"
+            rel="noopener"
+            data-todo="interview-quote-verify"
+          >
+            <blockquote class="v1-quote__text" data-reveal-item>
+              <span class="v1-quote__mark" aria-hidden="true">“</span>
+              Hell is not something that awaits us, but this life here and now.
+            </blockquote>
+            <span class="v1-quote__attr eyebrow" data-reveal-item>
+              Welcome to Hell — in conversation with Shane Anderson, 032C
+              <svg class="arr arr--out" viewBox="0 0 16 16" aria-hidden="true"><path class="arr__shaft" d="M2.5 13.5 11.5 4.5" /><path class="arr__head" pathLength="16" d="M5.5 3.5H12.5V10.5" /></svg>
+            </span>
+          </a>
+          <a class="v1-explore" href={u('/writing')} data-reveal-item
+            >Explore Interviews <svg class="arr arr--to" viewBox="0 0 16 16" aria-hidden="true"><path class="arr__shaft" d="M1.5 8H12" /><path class="arr__head" pathLength="16" d="M8 2.5 13.5 8 8 13.5" /></svg></a
+          >
+        </div>
+      </section>
+
+      <!-- Writing: a plain left-ranged list — titles with mono meta
+           beneath, an explore link at the end. -->
+      <section class="v1-block" id="writing" data-reveal aria-label="Writing">
+        <ol class="v1-list">
+          {
+            recentWriting.map((item) => (
+              <li data-reveal-item>
+                {item.url ? (
+                  <a class="v1-list__row" href={u(item.url)} target="_blank" rel="noopener">
+                    <span class="v1-list__title">{item.title}</span>
+                    <span class="v1-list__meta eyebrow">
+                      {item.pdf && !item.venue ? 'PDF' : item.venue}
+                      {item.year ? ` — ${item.year}` : ''}
+                    </span>
+                  </a>
+                ) : (
+                  <span class="v1-list__row v1-list__row--pending" data-todo="writing-link">
+                    <span class="v1-list__title">{item.title}</span>
+                  </span>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+        <p class="v1-block__more" data-reveal-item>
+          <a class="v1-explore" href={u('/writing')}
+            >Explore Writing <svg class="arr arr--to" viewBox="0 0 16 16" aria-hidden="true"><path class="arr__shaft" d="M1.5 8H12" /><path class="arr__head" pathLength="16" d="M8 2.5 13.5 8 8 13.5" /></svg></a
+          >
+        </p>
+      </section>
+
+      <!-- Talks: two players side by side in the hero's grey mats,
+           captioned like the book covers. -->
+      <section class="v1-block" id="talks" data-reveal aria-label="Talks">
+        <ul class="v1-videos">
+          {
+            shownVideos.map((video) => (
+              <li class="v1-video" data-reveal-item>
+                <span class="v1-video__mat">
+                  {video.embed ? (
+                    <iframe
+                      src={u(video.embed)}
+                      title={video.title}
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowfullscreen
+                    />
+                  ) : (
+                    <a
+                      class="v1-video__linkcard"
+                      href={u(video.url)}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <span class="v1-card__title">{video.title}</span>
+                      <span class="v1-card__cta eyebrow"
+                        >Watch on IAI <svg class="arr arr--out" viewBox="0 0 16 16" aria-hidden="true"><path class="arr__shaft" d="M2.5 13.5 11.5 4.5" /><path class="arr__head" pathLength="16" d="M5.5 3.5H12.5V10.5" /></svg></span
+                      >
+                    </a>
+                  )}
+                </span>
+                <span class="v1-video__caption eyebrow">
+                  {video.index} — {video.title}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="v1-block__more" data-reveal-item>
+          <a class="v1-explore" href={u('/writing')}
+            >Explore Talks <svg class="arr arr--to" viewBox="0 0 16 16" aria-hidden="true"><path class="arr__shaft" d="M1.5 8H12" /><path class="arr__head" pathLength="16" d="M8 2.5 13.5 8 8 13.5" /></svg></a
+          >
+        </p>
+      </section>
+
+      <footer class="v1-footer" data-reveal>
+        <a class="v1-footer__next" href={u('/biog')} data-reveal-item>
+          <span class="v1-footer__next-text"
+            >Next: Biography <svg class="arr arr--to" viewBox="0 0 16 16" aria-hidden="true"><path class="arr__shaft" d="M1.5 8H12" /><path class="arr__head" pathLength="16" d="M8 2.5 13.5 8 8 13.5" /></svg></span
+          >
+        </a>
+        <hr class="rule" />
+        <!-- The foot: left-ranged columns in the page's own register, the
+             enquiries line first because it's the only ask here. -->
+        <div class="v1-footer__cols">
+          <div class="v1-footer__col" data-reveal-item>
+            <h2 class="eyebrow">Enquiries</h2>
+            <p class="v1-footer__note">
+              Speaking, press and rights via
+              <a
+                class="v1-footer__link"
+                href="https://cwagency.co.uk"
+                target="_blank"
+                rel="noopener"
+                data-todo="verify-cw-url"
+                >C&amp;W Agency <svg class="arr arr--out" viewBox="0 0 16 16" aria-hidden="true"><path class="arr__shaft" d="M2.5 13.5 11.5 4.5" /><path class="arr__head" pathLength="16" d="M5.5 3.5H12.5V10.5" /></svg></a
+              >
+            </p>
+          </div>
+
+          <nav class="v1-footer__col" aria-labelledby="v1-foot-site" data-reveal-item>
+            <h2 class="eyebrow" id="v1-foot-site">Site</h2>
+            <ul>
+              <li><a class="v1-footer__link" href={u('/books')}>Books</a></li>
+              <li><a class="v1-footer__link" href={u('/writing')}>Media</a></li>
+              <li><a class="v1-footer__link" href={u('/biog')}>Biog</a></li>
+            </ul>
+          </nav>
+
+          <nav class="v1-footer__col" aria-labelledby="v1-foot-elsewhere" data-reveal-item>
+            <h2 class="eyebrow" id="v1-foot-elsewhere">Elsewhere</h2>
+            <ul>
+              <li>
+                <a
+                  class="v1-footer__link"
+                  href="https://www.kcl.ac.uk/research/centre-for-philosophy-and-visual-arts"
+                  target="_blank"
+                  rel="noopener"
+                  >Centre for Philosophy &amp; Art <svg class="arr arr--out" viewBox="0 0 16 16" aria-hidden="true"><path class="arr__shaft" d="M2.5 13.5 11.5 4.5" /><path class="arr__head" pathLength="16" d="M5.5 3.5H12.5V10.5" /></svg></a
+                >
+              </li>
+              <li>
+                <a
+                  class="v1-footer__link"
+                  href="https://www.bicar.org"
+                  target="_blank"
+                  rel="noopener"
+                  data-todo="verify-bicar-url"
+                  >BICAR <svg class="arr arr--out" viewBox="0 0 16 16" aria-hidden="true"><path class="arr__shaft" d="M2.5 13.5 11.5 4.5" /><path class="arr__head" pathLength="16" d="M5.5 3.5H12.5V10.5" /></svg></a
+                >
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div class="v1-footer__row" data-reveal-item>
+          <span class="eyebrow">© {year} Ben Ware</span>
+          <span class="eyebrow">London, UK</span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Outbound cursor chip: an ink circle with the outbound arrow that
+         rides beside the pointer over any link leaving the site. -->
+    <div class="v1-cursor" aria-hidden="true">
+      <div class="v1-cursor__disc">
+        <svg class="arr" viewBox="0 0 16 16">
+          <path class="arr__shaft" d="M2.5 13.5 11.5 4.5" />
+          <path class="arr__head" pathLength="16" d="M5.5 3.5H12.5V10.5" />
+        </svg>
+      </div>
+    </div>
+  </main>
+
+  <style is:global>
+    /* V1 sits on pure white by client request (rest of site keeps paper). */
+    body {
+      background: #ffffff;
+    }
+  </style>
+
+  <style>
+    .v1 {
+      --v1-nav-h: clamp(3.5rem, 9vh, 5.5rem);
+    }
+
+    .v1-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: var(--v1-nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-inline: var(--gutter);
+      background: #ffffff;
+    }
+
+    .v1-nav__logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(1rem, 1.6vw, 1.35rem);
+      opacity: 0;
+      transform: translateY(0.4rem);
+      pointer-events: none;
+      transition:
+        opacity 0.4s var(--ease-standard),
+        transform 0.4s var(--ease-standard);
+    }
+
+    .v1-nav.has-logo .v1-nav__logo {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+    }
+
+    .v1-nav ul {
+      display: flex;
+      gap: clamp(1.25rem, 2.4vw, 3rem);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-family: 'Spectral', Georgia, serif;
+      font-size: clamp(1rem, 1.9vw, 1.5rem);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .v1-nav__logo {
+        transition: none;
+      }
+    }
+
+    /* ------------------------------------------------------------------
+       Hero: carousel centred between nav and title.
+    ------------------------------------------------------------------ */
+
+    .v1-hero {
+      height: calc(100svh - var(--v1-nav-h));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .v1-carousel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+    }
+
+    .v1-carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .v1-carousel.is-enhanced {
+      overflow: hidden;
+      cursor: grab;
+      touch-action: pan-y; /* vertical swipes keep scrolling the page */
+    }
+
+    .v1-carousel.is-enhanced:active {
+      cursor: grabbing;
+    }
+
+    .v1-track {
+      display: flex;
+      align-items: flex-start;
+      gap: clamp(1rem, 2vw, 2rem);
+      /* Same left edge as the wordmark, so the first mat starts in line
+         with the B of "BenWare". */
+      padding-inline: clamp(1.25rem, 3vw, 3.5rem);
+      width: max-content;
+      will-change: transform;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Width lives on the link so the caption is bound to the same box —
+       no caption can run wider than the mat. Width-driven but capped
+       against viewport height so the row clears the wordmark below. */
+    .v1-book {
+      display: block;
+      flex-shrink: 0;
+      width: max(300px, min(24vw, 40svh));
+    }
+
+    /* The window: a fixed 3:4 frame with a grey mat. */
+    .v1-book__frame {
+      display: block;
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      background: #e9e9e7; /* grey-ish mat on the white page */
+    }
+
+    /* The artwork: 62% of the frame width, centred; JS slides it through
+       the mat while the row is in motion. */
+    .v1-book__cover {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 62%;
+      aspect-ratio: 2 / 3;
+      height: auto;
+      object-fit: cover;
+      transform: translate(-50%, -50%);
+      will-change: transform;
+      -webkit-user-drag: none;
+    }
+
+    .v1-book__caption {
+      display: block;
+      margin-top: 0.6rem;
+      opacity: 0;
+      transition: opacity 0.3s var(--ease-standard);
+    }
+
+    .v1-book:hover .v1-book__caption,
+    .v1-book:focus-visible .v1-book__caption {
+      opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .v1-book__caption {
+        opacity: 1;
+        transition: none;
+      }
+    }
+
+    /* Title row: giant wordmark with the subtitle + London clock beside
+       it, centred on the wordmark's height. */
+    .v1-title {
+      display: flex;
+      align-items: center;
+      gap: clamp(1.25rem, 3vw, 3.5rem);
+      padding: 0 clamp(1.25rem, 3vw, 3.5rem) clamp(0.5rem, 3vh, 2rem);
+      pointer-events: none;
+    }
+
+    .v1-name {
+      font-size: clamp(3.5rem, 13.9vw, 16.5rem);
+      letter-spacing: -0.01em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    /* ------------------------------------------------------------------
+       Below the hero: the catalogue. One left edge — the hero's own
+       padding — Spectral display type, ink only.
+    ------------------------------------------------------------------ */
+
+    .v1-body {
+      --font-serif: 'Spectral', Georgia, serif;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8rem, 22vh, 16rem);
+      padding: clamp(2rem, 6vh, 4rem) clamp(1.25rem, 3vw, 3.5rem) clamp(3rem, 7vh, 5rem);
+    }
+
+    /* Lead: the statement hard against the fold on the left, a light
+       quote column on the right with its explore link. */
+
+    .v1-lead {
+      display: grid;
+      /* Statement takes its natural measure; the quote centres itself
+         in whatever space is left before the right wall. */
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: start;
+      gap: clamp(2rem, 4vw, 4rem);
+    }
+
+    /* The quote column stretches to the lead's full height so the
+       explore link bottom-aligns with the King's College London line. */
+    .v1-lead__quote {
+      justify-self: center;
+      width: min(100%, 26rem);
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .v1-statement__text {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-weight: 300;
+      font-size: clamp(1.9rem, 3.8vw, 3.8rem);
+      line-height: 1.28;
+      letter-spacing: -0.01em;
+    }
+
+    .v1-statement__text a {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.18em;
+    }
+
+    .v1-statement__aside {
+      margin: clamp(2rem, 4vh, 3rem) 0 0;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+      line-height: 1.55;
+      color: var(--color-ink-55);
+    }
+
+    /* The lead quote: set light, the mono opening mark sat directly
+       behind the first letter in pale grey. */
+
+    .v1-quote {
+      display: block;
+    }
+
+    .v1-quote__text {
+      position: relative;
+      isolation: isolate;
+      margin: 0 0 1.5rem;
+      font-family: var(--font-serif);
+      font-weight: 200;
+      font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      transition: color 0.3s var(--ease-standard);
+    }
+
+    .v1-quote__mark {
+      position: absolute;
+      z-index: -1;
+      top: -0.2em;
+      left: -0.22em;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 3em;
+      line-height: 1;
+      color: #d6d6d3;
+      user-select: none;
+    }
+
+    a.v1-quote:hover .v1-quote__text {
+      color: var(--color-accent);
+    }
+
+    .v1-quote__attr {
+      display: block;
+      line-height: 1.6;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .v1-quote__text {
+        transition: none;
+      }
+    }
+
+    /* Custom arrows. Two kinds only: a thick → for in-site links, and
+       an outbound ↗ with a corner-bracket head for links that leave the
+       site. Drawn as masks so they take the link's current colour,
+       hover transitions included. */
+
+    .arr {
+      display: inline-block;
+      width: 0.85em;
+      height: 0.85em;
+      vertical-align: -0.06em;
+      overflow: visible;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      /* Square caps extend each stroke end by half its width, closing
+         the notch where the head legs meet the shaft tip. */
+      stroke-linecap: square;
+    }
+
+    /* Shafts know their own length so they can be drawn on. Heads are
+       single mitred paths (pathLength-normalised to 16, tip at 8) so the
+       corner is seamless; a growing centred dash draws both legs outward
+       from the tip at once. */
+    .arr .arr__shaft {
+      --len: 13;
+      stroke-dasharray: var(--len);
+      stroke-dashoffset: 0;
+    }
+
+    .arr .arr__head {
+      stroke-dasharray: 16 16;
+      stroke-dashoffset: 0;
+      /* Butt caps: a zero-length dash must render nothing — square caps
+         would paint a dot at the tip even when the head is undrawn. */
+      stroke-linecap: butt;
+    }
+
+    @keyframes v1-draw {
+      from {
+        stroke-dashoffset: var(--len);
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Centre-out draw: dash grows from the path midpoint (the tip). */
+    @keyframes v1-draw-head {
+      from {
+        stroke-dasharray: 0 16;
+        stroke-dashoffset: -8;
+      }
+      to {
+        stroke-dasharray: 16 16;
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* In-site arrows rest as a lone square dot — the start of the
+       shaft, made of its square cap on a hairline dash. On hover the
+       shaft draws out of the dot, then the head unfurls from the tip;
+       on leave it all folds back into the dot, faster (200ms vs 300ms). */
+    .arr--to .arr__shaft {
+      stroke-dashoffset: calc(var(--len) - 0.011);
+      transition: stroke-dashoffset 0.08s 0.12s var(--ease-standard);
+    }
+
+    .arr--to .arr__head {
+      stroke-dasharray: 0 16;
+      stroke-dashoffset: -8;
+      transition:
+        stroke-dasharray 0.13s var(--ease-standard),
+        stroke-dashoffset 0.13s var(--ease-standard);
+    }
+
+    /* Entry: 300ms total — shaft lands, legs unfurl. */
+    a:hover .arr--to .arr__shaft {
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.12s var(--ease-standard);
+    }
+
+    a:hover .arr--to .arr__head {
+      stroke-dasharray: 16 16;
+      stroke-dashoffset: 0;
+      transition:
+        stroke-dasharray 0.2s 0.1s var(--ease-standard),
+        stroke-dashoffset 0.2s 0.1s var(--ease-standard);
+    }
+
+    /* Outbound arrows stay visible and redraw themselves on hover. */
+    a:hover .arr--out .arr__shaft {
+      animation: v1-draw 0.12s var(--ease-standard) both;
+    }
+
+    a:hover .arr--out .arr__head {
+      animation: v1-draw-head 0.2s 0.1s var(--ease-standard) both;
+    }
+
+    /* Outbound cursor chip: ink circle + white outbound arrow. The outer
+       shell only carries the pointer position (transform from the
+       script); the disc inside pops and draws its arrow on activation. */
+
+    .v1-cursor {
+      position: fixed;
+      top: -24px;
+      left: -24px;
+      width: 48px;
+      height: 48px;
+      pointer-events: none;
+      z-index: 60;
+      will-change: transform;
+    }
+
+    .v1-cursor__disc {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--color-ink);
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transform: scale(0.4);
+      transition:
+        opacity 0.2s var(--ease-standard),
+        transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .v1-cursor.is-active .v1-cursor__disc {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .v1-cursor svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* The chip's arrow draws itself each time the chip appears. */
+    .v1-cursor.is-active .arr__shaft {
+      animation: v1-draw 0.1s 0.05s var(--ease-standard) both;
+    }
+
+    .v1-cursor.is-active .arr__head {
+      animation: v1-draw-head 0.16s 0.14s var(--ease-standard) both;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      a:hover .arr--out .arr__shaft,
+      a:hover .arr--out .arr__head,
+      .v1-cursor.is-active .arr__shaft,
+      .v1-cursor.is-active .arr__head {
+        animation: none;
+      }
+
+      /* No draw choreography: in-site arrows just stay visible. */
+      .arr--to .arr__shaft {
+        stroke-dashoffset: 0;
+        transition: none;
+      }
+
+      .arr--to .arr__head {
+        stroke-dasharray: 16 16;
+        stroke-dashoffset: 0;
+        transition: none;
+      }
+
+      .v1-cursor__disc {
+        transition: opacity 0.25s var(--ease-standard);
+        transform: none;
+      }
+    }
+
+    /* Explore links: quiet serif pulls that close each section. */
+
+    .v1-explore {
+      display: inline-block;
+      font-family: var(--font-serif);
+      font-weight: 400;
+      /* Same size as the statement aside (King's College London line). */
+      font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+      /* A text underline, not a border — so it sits under the words
+         only, never under the arrow. */
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-decoration-color: var(--color-ink-15);
+      text-underline-offset: 5px;
+      transition:
+        color 0.3s var(--ease-standard),
+        text-decoration-color 0.3s var(--ease-standard);
+    }
+
+    .v1-explore:hover {
+      color: var(--color-accent);
+      text-decoration-color: var(--color-accent);
+    }
+
+    .v1-lead__quote .v1-explore {
+      margin-top: auto; /* pushed to the column's bottom edge */
+      padding-top: 1.25rem; /* minimum gap when there's no room to push */
+      align-self: flex-start;
+      /* Offset the aside's line-height leading so the underline sits on
+         the King's College London text line, not below it. */
+      margin-bottom: 0.5rem;
+    }
+
+    .v1-block__more {
+      margin: clamp(2rem, 5vh, 3rem) 0 0;
+    }
+
+    /* Writing: a plain left-ranged list, mono meta beneath each title. */
+
+    .v1-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(3.5rem, 9vh, 6.5rem);
+    }
+
+    .v1-list__row {
+      display: block;
+    }
+
+    .v1-list__title {
+      display: block;
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: clamp(2rem, 4.2vw, 4.2rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      transition: color 0.35s var(--ease-standard);
+    }
+
+    a.v1-list__row:hover .v1-list__title {
+      color: var(--color-accent);
+    }
+
+    .v1-list__meta {
+      display: block;
+      margin-top: 0.75rem;
+    }
+
+    /* 03 — Talks: players inset in the hero's grey mats, captioned like
+       the book covers. */
+    .v1-videos {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 3vw, 3rem);
+    }
+
+    .v1-video__mat {
+      display: block;
+      background: #e9e9e7;
+      padding: clamp(1rem, 2.5vw, 2.5rem);
+    }
+
+    .v1-video__mat iframe {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      background: var(--color-ink);
+    }
+
+    .v1-video__linkcard {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.5rem;
+      aspect-ratio: 16 / 9;
+      padding: clamp(1.25rem, 2vw, 2rem);
+    }
+
+    .v1-card__title {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: clamp(1.15rem, 1.8vw, 1.6rem);
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      transition: color 0.3s var(--ease-standard);
+    }
+
+    .v1-video__linkcard:hover .v1-card__title {
+      color: var(--color-accent);
+    }
+
+    .v1-video__caption {
+      display: block;
+      margin-top: 0.6rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .v1-card__title {
+        transition: none;
+      }
+    }
+
+    /* Footer: the agency "next page" pull at display scale. */
+
+    .v1-footer__next {
+      display: block;
+      margin-bottom: clamp(4rem, 10vh, 7rem);
+    }
+
+    .v1-footer__next-text {
+      display: block;
+      font-family: var(--font-serif);
+      font-weight: 300;
+      font-size: clamp(3rem, 8.9vw, 8rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      transition: color 0.3s var(--ease-standard);
+    }
+
+    .v1-footer__next:hover .v1-footer__next-text {
+      color: var(--color-accent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .v1-footer__next-text {
+        transition: none;
+      }
+    }
+
+    /* Foot columns: left-ranged like the lists above, set in the serif at
+       reading size — the imprint line closes underneath. */
+
+    .v1-footer__cols {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+      gap: clamp(2.5rem, 5vw, 5rem);
+      padding-top: clamp(2.5rem, 6vh, 4rem);
+    }
+
+    .v1-footer__col h2 {
+      margin: 0 0 1.1rem;
+    }
+
+    .v1-footer__col ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .v1-footer__note {
+      margin: 0;
+      max-width: 26ch;
+    }
+
+    .v1-footer__link,
+    .v1-footer__note {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+      line-height: 1.5;
+    }
+
+    .v1-footer__link {
+      transition: color 0.3s var(--ease-standard);
+    }
+
+    .v1-footer__link:hover {
+      color: var(--color-accent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .v1-footer__link {
+        transition: none;
+      }
+    }
+
+    .v1-footer__row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding-top: clamp(3rem, 7vh, 5rem);
+    }
+
+    @media (max-width: 760px) {
+      .v1-book {
+        width: min(74vw, 340px);
+      }
+
+      .v1-book__caption {
+        opacity: 1;
+      }
+
+      .v1-title {
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+      }
+
+      .v1-name {
+        font-size: clamp(3rem, 19vw, 6rem);
+      }
+
+      .v1-videos {
+        grid-template-columns: 1fr;
+      }
+
+      /* Lead stacks: quote drops under the statement. It also gives up the
+         centring it uses beside the statement — stacked, it has to start on
+         the same left edge as everything else, or it reads as indented at
+         every width between the phone and this breakpoint. */
+      .v1-lead {
+        grid-template-columns: 1fr;
+      }
+
+      .v1-lead__quote {
+        justify-self: start;
+      }
+    }
+  </style>
+
+  <script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+    // Nav logo appears once the hero title has scrolled up out of view
+    // (functional, so it also runs under reduced motion — its transition
+    // is CSS-gated).
+    const nav = document.querySelector('.v1-nav');
+    const heroTitle = document.querySelector('.v1-title');
+    const updateLogo = () => {
+      const gone = heroTitle.getBoundingClientRect().bottom < nav.offsetHeight;
+      nav.classList.toggle('has-logo', gone);
+    };
+    updateLogo();
+    window.addEventListener('scroll', updateLogo, { passive: true });
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Outbound cursor chip: rides beside the pointer over external links.
+    // Mouse-driven, so only on fine pointers; skipped under reduced motion.
+    const chip = document.querySelector('.v1-cursor');
+    if (chip && !reduceMotion && window.matchMedia('(pointer: fine)').matches) {
+      let x = 0;
+      let y = 0;
+      let cx = 0;
+      let cy = 0;
+      let over = false;
+      let raf = null;
+
+      const render = () => {
+        cx += (x - cx) * 0.22;
+        cy += (y - cy) * 0.22;
+        chip.style.transform = `translate(${cx + 30}px, ${cy - 30}px)`;
+        if (over || Math.hypot(x - cx, y - cy) > 0.5) {
+          raf = requestAnimationFrame(render);
+        } else {
+          raf = null;
+        }
+      };
+      const start = () => {
+        if (raf === null) raf = requestAnimationFrame(render);
+      };
+
+      document.addEventListener(
+        'mousemove',
+        (e) => {
+          x = e.clientX;
+          y = e.clientY;
+          if (over) start();
+        },
+        { passive: true }
+      );
+
+      document.querySelectorAll('a[target="_blank"]').forEach((link) => {
+        link.addEventListener('mouseenter', () => {
+          over = true;
+          cx = x;
+          cy = y;
+          chip.classList.add('is-active');
+          start();
+        });
+        link.addEventListener('mouseleave', () => {
+          over = false;
+          chip.classList.remove('is-active');
+        });
+      });
+    }
+
+    if (!reduceMotion) {
+      gsap.registerPlugin(ScrollTrigger);
+
+      const carousel = document.querySelector('.v1-carousel');
+      const track = document.querySelector('.v1-track');
+      const frames = Array.from(document.querySelectorAll('.v1-book__frame'));
+      const covers = frames.map((f) => f.querySelector('.v1-book__cover'));
+      const links = Array.from(document.querySelectorAll('.v1-book'));
+
+      carousel.classList.add('is-enhanced');
+
+      // Editorial load reveal: covers rise in sequence, then the title row.
+      gsap
+        .timeline({ defaults: { ease: 'power3.out' } })
+        .from(links, { y: 32, autoAlpha: 0, duration: 0.8, stagger: 0.08 })
+        .from('.v1-title', { yPercent: 30, autoAlpha: 0, duration: 0.8 }, '-=0.5');
+
+      // Catalogue sections rise in as they enter; items stagger within
+      // them (statement lines, index rows, quotes, video mats).
+      document.querySelectorAll('[data-reveal]').forEach((section) => {
+        const items = section.querySelectorAll('[data-reveal-item]');
+        gsap.from(items.length ? items : section, {
+          y: 32,
+          autoAlpha: 0,
+          duration: 0.8,
+          stagger: 0.07,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: section, start: 'top 85%' },
+        });
+      });
+
+      /* ----------------------------------------------------------------
+         Carousel: drag + horizontal wheel feed a clamped target; the row
+         lerps toward it (0.07). Covers shift through their mats in
+         proportion to the lerp's lag, settling centred at rest.
+         Vertical wheel is left alone — it scrolls the page.
+      ---------------------------------------------------------------- */
+      const scroll = { current: 0, target: 0, ease: 0.07, limit: 0 };
+      const TRAVEL = 0.17; // fraction of frame width, per side
+      const LAG_REACH = 0.35; // lag equal to 35% of viewport = full lean
+      let lean = 0;
+
+      const setLimit = () => {
+        scroll.limit = Math.max(0, track.scrollWidth - carousel.clientWidth);
+      };
+      setLimit();
+      window.addEventListener('resize', setLimit);
+
+      // Wheel over the carousel drives it horizontally while it has room;
+      // at either end the event is released so the page scrolls on. Never
+      // traps the user in the hero.
+      carousel.addEventListener(
+        'wheel',
+        (e) => {
+          const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+          const canForward = delta > 0 && scroll.target < scroll.limit - 1;
+          const canBack = delta < 0 && scroll.target > 1;
+          if (canForward || canBack) {
+            scroll.target += delta;
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
+
+      // Belt and braces: never let the browser start a native drag (link
+      // ghost) from inside the carousel.
+      carousel.addEventListener('dragstart', (e) => e.preventDefault());
+
+      let dragging = false;
+      let lastX = 0;
+      let velocity = 0;
+      carousel.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        lastX = e.clientX;
+        velocity = 0;
+        carousel.setPointerCapture(e.pointerId);
+      });
+      carousel.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - lastX;
+        lastX = e.clientX;
+        scroll.target -= dx;
+        velocity = -dx;
+      });
+      const endDrag = () => {
+        if (!dragging) return;
+        dragging = false;
+        scroll.target += velocity * 12; // fling carries on, lerp eases it out
+      };
+      carousel.addEventListener('pointerup', endDrag);
+      carousel.addEventListener('pointercancel', endDrag);
+
+      // Suppress navigation after a real drag so flinging doesn't open books.
+      let downX = 0;
+      carousel.addEventListener('pointerdown', (e) => (downX = e.clientX), true);
+      links.forEach((link) =>
+        link.addEventListener('click', (e) => {
+          if (Math.abs(lastX - downX) > 6) e.preventDefault();
+        })
+      );
+
+      // Keyboard: focusing a book brings it into view.
+      links.forEach((link, i) =>
+        link.addEventListener('focus', () => {
+          const rect = frames[i].getBoundingClientRect();
+          scroll.target += rect.left + rect.width / 2 - window.innerWidth / 2;
+        })
+      );
+
+      const render = () => {
+        scroll.target = gsap.utils.clamp(0, scroll.limit, scroll.target);
+        scroll.current += (scroll.target - scroll.current) * scroll.ease;
+        track.style.transform = `translate3d(${-scroll.current}px, 0, 0)`;
+
+        // Lean follows the lerp's lag: covers slide through their mats
+        // while the row moves, easing back to dead centre as it settles.
+        const lag = scroll.target - scroll.current;
+        const targetLean = gsap.utils.clamp(-1, 1, lag / (window.innerWidth * LAG_REACH));
+        lean += (targetLean - lean) * 0.1;
+
+        frames.forEach((frame, i) => {
+          const rect = frame.getBoundingClientRect();
+          if (rect.right < 0 || rect.left > window.innerWidth) return;
+          const shift = lean * TRAVEL * rect.width * (0.85 + (i % 3) * 0.08);
+          covers[i].style.transform = `translate(calc(-50% + ${shift}px), -50%)`;
+        });
+
+        requestAnimationFrame(render);
+      };
+      requestAnimationFrame(render);
+    }
+  </script>
+</Base>

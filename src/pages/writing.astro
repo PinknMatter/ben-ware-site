@@ -1,0 +1,92 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { writing, interviews, videos } from '../data/writing.js';
+import { u } from '../lib/url.js';
+---
+
+<Base
+  title="Writing & Media — Ben Ware"
+  description="Recent writing, interviews and videos by Ben Ware — philosopher and social theorist."
+>
+  <Nav />
+  <main class="container">
+    <div class="page-header">
+      <p class="eyebrow">Writing & Media</p>
+      <h1>Writing & Media</h1>
+    </div>
+
+    <section aria-labelledby="writing-heading">
+      <p class="eyebrow" id="writing-heading" style="margin-bottom: 1rem;">
+        Some Recent Writing — {String(writing.length).padStart(2, '0')}
+      </p>
+      <ul class="list-rows">
+        {
+          writing.map((item) => (
+            <li>
+              {item.url ? (
+                <a
+                  class="list-row"
+                  href={u(item.url)}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <span class="list-row__title">{item.title}</span>
+                  {item.venue && <span class="list-row__venue">{item.venue}</span>}
+                  {item.year && <span class="list-row__year">{item.year}</span>}
+                </a>
+              ) : (
+                <span class="list-row" data-todo="writing-link">
+                  {/* TODO: link + year to be confirmed by client */}
+                  <span class="list-row__title">{item.title}</span>
+                  {item.venue && <span class="list-row__venue">{item.venue}</span>}
+                  <span class="list-row__pending">link to follow</span>
+                </span>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="interviews-heading" style="margin-top: clamp(3rem, 8vh, 5rem);">
+      <p class="eyebrow" id="interviews-heading" style="margin-bottom: 1rem;">
+        Interviews — {String(interviews.length).padStart(2, '0')}
+      </p>
+      <ul class="list-rows">
+        {
+          interviews.map((item) => (
+            <li>
+              <a class="list-row" href={u(item.url)} target="_blank" rel="noopener">
+                <span class="list-row__title">{item.title}</span>
+                <span class="list-row__venue">{item.venue}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section
+      aria-labelledby="videos-heading"
+      style="margin-top: clamp(3rem, 8vh, 5rem); margin-bottom: clamp(4rem, 10vh, 7rem);"
+    >
+      <p class="eyebrow" id="videos-heading" style="margin-bottom: 1rem;">
+        Videos — {String(videos.length).padStart(2, '0')}
+      </p>
+      <ul class="list-rows">
+        {
+          videos.map((item) => (
+            <li>
+              <a class="list-row" href={u(item.url)} target="_blank" rel="noopener">
+                <span class="list-row__title">{item.title}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
+  <Footer />
+</Base>

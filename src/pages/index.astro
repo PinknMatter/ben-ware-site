@@ -1,0 +1,79 @@
+---
+// Concept index for the client — deliberately plain. Just the three
+// homepage versions plus the shared inner pages.
+import Base from '../layouts/Base.astro';
+
+const concepts = [
+  { href: '/v1', label: 'Version 1', note: 'Books as the center — horizontal carousel of the five books' },
+  { href: '/v2', label: 'Version 2', note: 'Ben as the center — typographic hero' },
+  { href: '/v3', label: 'Version 3', note: 'The proof — typewritten manuscript with hand-drawn annotations' },
+];
+
+const inner = [
+  { href: '/books', label: 'Books' },
+  { href: '/writing', label: 'Writing & Media' },
+  { href: '/biog', label: 'Biog' },
+];
+import { u } from '../lib/url.js';
+---
+
+<Base title="Ben Ware — Homepage concepts" description="Three homepage concepts for the Ben Ware website.">
+  <main class="container index">
+    <p class="eyebrow">Ben Ware — homepage concepts</p>
+    <ul class="index__list">
+      {
+        concepts.map((c) => (
+          <li>
+            <a class="index__link" href={u(c.href)}>{c.label}</a>
+            <span class="index__note">{c.note}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="eyebrow">Shared inner pages</p>
+    <ul class="index__list index__list--small">
+      {
+        inner.map((p) => (
+          <li>
+            <a class="index__link" href={u(p.href)}>{p.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+
+  <style>
+    .index {
+      padding-block: clamp(3rem, 12vh, 8rem);
+    }
+
+    .index__list {
+      list-style: none;
+      margin: 1.5rem 0 3.5rem;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .index__link {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--text-lg);
+      border-bottom: 1px solid var(--color-ink-15);
+    }
+
+    .index__list--small .index__link {
+      font-size: var(--text-base);
+      font-weight: 400;
+    }
+
+    .index__note {
+      display: block;
+      font-size: var(--text-sm);
+      color: var(--color-ink-55);
+      margin-top: 0.25rem;
+    }
+  </style>
+</Base>

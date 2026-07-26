@@ -1,0 +1,14 @@
+# build output & caches
+node_modules/
+dist/
+.astro/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Client working files: the original Word documents, PDFs and photo scans the
+# copy and images were taken from. Nothing in the build reads this folder — the
+# processed copies live in public/ — and this repository is public, so the raw
+# client material stays out of it.
+Assets/

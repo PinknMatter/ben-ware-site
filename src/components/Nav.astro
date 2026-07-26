@@ -1,0 +1,34 @@
+---
+// Shared nav. `home` lets each concept point the logo at itself;
+// inner pages point it back to the concept index at "/" for now.
+interface Props {
+  home?: string;
+}
+
+const { home = '/' } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+const links = [
+  { href: '/books', label: 'Books' },
+  { href: '/writing', label: 'Writing & Media' },
+  { href: '/biog', label: 'Biog' },
+];
+import { u } from '../lib/url.js';
+---
+
+<header class="container">
+  <nav class="site-nav" aria-label="Main">
+    <a class="site-nav__logo" href={u(home)}>Ben Ware</a>
+    <ul class="site-nav__links">
+      {
+        links.map((link) => (
+          <li>
+            <a href={u(link.href)} aria-current={path === link.href ? 'page' : undefined}>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>

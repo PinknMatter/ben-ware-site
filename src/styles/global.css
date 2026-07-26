@@ -1,0 +1,360 @@
+/* ---------------------------------------------------------------------------
+   Ben Ware — global tokens & base styles
+   Accent is PROVISIONAL: swap --color-accent below and it changes site-wide.
+--------------------------------------------------------------------------- */
+
+:root {
+  --color-ink: #111111;
+  --color-paper: #FAFAF8;
+  --color-accent: #E63B2E; /* TODO: provisional accent, not yet agreed with client */
+
+  --color-ink-15: rgba(17, 17, 17, 0.15);
+  --color-ink-55: rgba(17, 17, 17, 0.55);
+
+  --font-display: 'Space Mono', 'Courier New', monospace;
+  --font-body: 'Courier Prime', 'Courier New', monospace;
+
+  /* Type scale */
+  --text-xs: 0.75rem;    /* 12 */
+  --text-sm: 0.875rem;   /* 14 */
+  --text-base: 1.125rem; /* 18 */
+  --text-lg: 1.75rem;    /* 28 */
+  --text-xl: 3rem;       /* 48 */
+  --text-display: clamp(2.5rem, 8vw, 8rem);
+
+  --max-width: 1400px;
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+
+  --ease-standard: cubic-bezier(0.215, 0.61, 0.355, 1); /* ~power3.out */
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s var(--ease-standard);
+}
+
+a:hover {
+  color: var(--color-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.container {
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Mono eyebrow labels: "BOOKS — 05" */
+.eyebrow {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-55);
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--color-ink-15);
+  margin: 0;
+}
+
+/* Quiet inline text link with accent hover + underline */
+.text-link {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--color-ink-15);
+  padding-bottom: 2px;
+}
+
+.text-link:hover {
+  border-bottom-color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Shared nav
+-------------------------------------------------------------------------- */
+
+.site-nav {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 1.5rem;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.site-nav__logo {
+  font-weight: 700;
+}
+
+.site-nav__links {
+  display: flex;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-nav__links a[aria-current='page'] {
+  border-bottom: 1px solid var(--color-ink);
+}
+
+/* --------------------------------------------------------------------------
+   Shared footer
+-------------------------------------------------------------------------- */
+
+.site-footer {
+  padding-block: 2.5rem;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-55);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   Inner pages (books / writing / biog)
+-------------------------------------------------------------------------- */
+
+.page-header {
+  padding-block: clamp(3rem, 8vh, 6rem) clamp(2rem, 5vh, 4rem);
+}
+
+.page-header h1 {
+  font-size: clamp(2rem, 5.5vw, var(--text-xl));
+  letter-spacing: -0.02em;
+  margin-top: 0.75rem;
+}
+
+/* Books page */
+
+.book {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  padding-block: clamp(3rem, 8vh, 5.5rem);
+}
+
+.book__cover {
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: var(--color-ink);
+}
+
+.book__title {
+  font-size: clamp(1.4rem, 2.6vw, var(--text-lg));
+  letter-spacing: -0.01em;
+  margin-block: 0.6rem 1.4rem;
+}
+
+.book__blurb {
+  max-width: 65ch;
+}
+
+.book__links {
+  display: flex;
+  gap: 2rem;
+  margin-block: 1.5rem;
+}
+
+.endorsements {
+  margin-top: 2.5rem;
+  max-width: 65ch;
+}
+
+.endorsement {
+  margin: 0 0 1.75rem;
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--color-ink-15);
+}
+
+.endorsement p {
+  margin: 0 0 0.4rem;
+}
+
+.endorsement cite {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  color: var(--color-ink-55);
+}
+
+.endorsement cite em {
+  font-style: italic;
+}
+
+.praise-toggle {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-ink-15);
+  padding: 0 0 2px;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.praise-toggle:hover {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+/* Writing page — hairline-ruled full-width rows */
+
+.list-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-ink-15);
+}
+
+.list-rows li {
+  border-bottom: 1px solid var(--color-ink-15);
+}
+
+.list-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 1.5rem;
+  padding-block: 1.1rem;
+}
+
+.list-row__title {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  letter-spacing: 0.02em;
+}
+
+a.list-row:hover .list-row__title {
+  color: var(--color-accent);
+}
+
+.list-row__venue {
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--color-ink-55);
+}
+
+.list-row__year {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  color: var(--color-ink-55);
+}
+
+.list-row__pending {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  color: var(--color-ink-55);
+}
+
+@media (max-width: 640px) {
+  .list-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .list-row__venue {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+/* Biog page */
+
+.biog {
+  max-width: 65ch;
+  padding-block: clamp(2rem, 6vh, 4rem) clamp(4rem, 10vh, 7rem);
+}
+
+.biog p {
+  margin-block: 0 1.6em;
+}
+
+.biog a {
+  border-bottom: 1px solid var(--color-ink-15);
+}
+
+.biog a:hover {
+  border-bottom-color: var(--color-accent);
+}
+
+.biog__portrait {
+  width: min(320px, 60vw);
+  filter: grayscale(1);
+  margin-bottom: clamp(2.5rem, 6vh, 4rem);
+}
+
+@media (max-width: 760px) {
+  .book {
+    grid-template-columns: 1fr;
+  }
+
+  .book__cover {
+    max-width: 240px;
+  }
+}
