@@ -1,0 +1,40 @@
+---
+// A standing redirect for a retired URL.
+//
+// The three homepage concepts were reviewed at /v1, /v2 and /v3, and those
+// addresses are in the client's email thread. V3 was chosen and is now the
+// site itself, so rather than let those links rot they land on the homepage.
+//
+// A static host has no 301 to give, so this is the meta-refresh form: the
+// canonical tag tells crawlers where the content actually lives, the refresh
+// moves a browser immediately, and the script keeps the retired URL out of the
+// back-button history so "back" returns to wherever the visitor came from.
+import { u } from '../lib/url.js';
+
+interface Props {
+  to: string;
+  label?: string;
+}
+
+const { to, label = 'the homepage' } = Astro.props;
+const target = u(to);
+const canonical = new URL(target, Astro.site ?? 'http://localhost:4321').href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moved — Ben Ware</title>
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content="noindex, follow" />
+    <script is:inline define:vars={{ target }}>
+      window.location.replace(target);
+    </script>
+  </head>
+  <body style="font-family: Georgia, serif; padding: 2rem;">
+    <p>This page has moved to <a href={target}>{label}</a>.</p>
+  </body>
+</html>

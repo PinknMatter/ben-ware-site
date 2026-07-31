@@ -1,0 +1,81 @@
+---
+// A single pen stroke, used as a rule between sections and under the title.
+//
+// WHY THE viewBox IS SO WIDE
+// The stroke uses vector-effect: non-scaling-stroke so a drawn mark keeps the
+// same visual weight whether it is 300px or 900px across. The cost is that the
+// browser then applies stroke-dasharray in screen pixels, while the draw-on
+// animation measures the path with getTotalLength() in viewBox units. Render a
+// mark LARGER than its viewBox and the dash runs out before the path does: the
+// stroke appears, stops, and starts again — which is the "loads as two lines"
+// the client reported on the section rules.
+//
+// The rule under the name never showed it because its viewBox was already
+// about as wide as it rendered. So the fix is simply to draw every mark in a
+// box wider than it can ever be displayed (the measure tops out around 864px):
+// break rules get 1400 units, the short rule 600, the underline 300.
+
+interface Props {
+  /** break = full-width section rule; short = the rule under the name. */
+  variant?: 'break' | 'short';
+  /** 0-2, picks one of three hand-drawn waves so no two rules are identical. */
+  hand?: number;
+  /** Draw on scroll rather than as part of the intro timeline. */
+  draw?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'break',
+  hand = 0,
+  draw = variant === 'break',
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+// Three waves, each drawn once and reused. Coordinates are deliberately
+// generous — see the note above.
+const breaks = [
+  'M9,14 C224,5 439,23 653,12 C868,2 1083,21 1297,9 C1330,7 1363,14 1391,12',
+  'M9,12 C215,21 429,5 644,16 C859,26 1073,7 1288,16 C1325,19 1363,12 1391,14',
+  'M9,16 C205,7 420,21 635,12 C849,2 1064,19 1279,12 C1321,9 1358,16 1391,14',
+];
+
+const isBreak = variant === 'break';
+const viewBox = isBreak ? '0 0 1400 28' : '0 0 600 36';
+const d = isBreak
+  ? breaks[hand % breaks.length]
+  : 'M8,22 C80,10 156,28 232,16 C304,6 380,26 456,16 C508,8 552,22 592,12';
+---
+
+<svg
+  class={`flourish flourish--${variant} ${className}`.trim()}
+  viewBox={viewBox}
+  aria-hidden="true"
+  data-draw={draw ? '' : undefined}
+  {...rest}
+>
+  <path class="ink" d={d}></path>
+</svg>
+
+<style>
+  /* Marks scale uniformly. A stretched viewBox (preserveAspectRatio="none")
+     distorts the dash pattern the draw-on animates, so every mark keeps its
+     aspect and scales as one. */
+  .flourish {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .flourish--break {
+    margin-block: var(--sp-xl);
+    opacity: 0.75;
+  }
+
+  .flourish--short {
+    margin-top: var(--sp-sm);
+    max-width: 18rem;
+  }
+</style>

@@ -1,0 +1,92 @@
+---
+// Where to buy. The client asked for the outbound links to sit under a BUY
+// head rather than floating loose under the description, so this is a proper
+// labelled block: one hairline-ruled row per seller, in the order a reader
+// should try them — publisher first, then the retailers, then translations.
+//
+// A seller with no confirmed URL renders as a row awaiting its link rather
+// than as a live link that goes nowhere.
+
+interface Props {
+  book: any;
+  class?: string;
+}
+
+const { book, class: className = '' } = Astro.props;
+const rows = book.buy ?? [];
+---
+
+{
+  rows.length > 0 && (
+    <div class={`buy ${className}`.trim()}>
+      <h3 class="label label--ink">Buy</h3>
+      <ul class="buy__list">
+        {rows.map((row) =>
+          row.url ? (
+            <li>
+              <a class="buy__row" href={row.url} target="_blank" rel="noopener">
+                <span class="buy__label ext">{row.label}</span>
+                {row.note && <span class="buy__note">{row.note}</span>}
+              </a>
+            </li>
+          ) : (
+            <li>
+              <span class="buy__row buy__row--pending" data-todo={row.todo}>
+                <span class="buy__label">{row.label}</span>
+                <span class="buy__note">link to follow</span>
+              </span>
+            </li>
+          )
+        )}
+      </ul>
+    </div>
+  )
+}
+
+<style>
+  .buy {
+    margin-top: var(--sp-lg);
+  }
+
+  .buy__list {
+    list-style: none;
+    margin: var(--sp-sm) 0 0;
+    padding: 0;
+    border-top: 1px solid var(--ink-18);
+    max-width: 22rem;
+  }
+
+  .buy__list > li {
+    border-bottom: 1px solid var(--ink-18);
+  }
+
+  /* In the narrow column beside a jacket there is not room for a label and its
+     note side by side, so the note drops to its own line rather than breaking
+     "German edition" across two. */
+  .buy__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.15rem var(--sp-md);
+    padding-block: 0.7rem;
+  }
+
+  .buy__label {
+    font-size: 0.9375rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .buy__note {
+    margin-left: auto;
+    font-style: italic;
+    font-size: 0.8125rem;
+    color: var(--ink-60);
+    text-align: right;
+  }
+
+  .buy__row--pending .buy__label {
+    color: var(--ink-40);
+  }
+</style>

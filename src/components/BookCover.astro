@@ -1,0 +1,96 @@
+---
+// A book cover, sized to a HEIGHT rather than a width.
+//
+// The client's scans are all 371px tall with widths from 237 to 286, which is
+// how a shelf actually works: books share a shelf line, not a width. Sizing by
+// height and aligning to the bottom gives a real shelf and never crops or
+// stretches a jacket. object-fit: contain is the safety rail — if a narrow
+// column forces the width down, the cover letterboxes instead of distorting.
+//
+// Set the height at the call site with the --cover-h custom property.
+import { u } from '../lib/url.js';
+
+interface Props {
+  book: any;
+  /** Cover art is decorative when the title is already a link beside it. */
+  decorative?: boolean;
+  loading?: 'eager' | 'lazy';
+  class?: string;
+}
+
+const { book, decorative = false, loading = 'lazy', class: className = '' } = Astro.props;
+---
+
+{
+  book.cover ? (
+    <span class={`cover ${className}`.trim()}>
+      <img
+        src={u(book.cover)}
+        alt={decorative ? '' : `Cover of ${book.shortTitle}`}
+        aria-hidden={decorative ? 'true' : undefined}
+        width="286"
+        height="371"
+        loading={loading}
+        decoding="async"
+      />
+    </span>
+  ) : (
+    /* No jacket yet. Rather than a broken box, this is a blank case at the
+       right proportions, so the shelf still reads as a shelf. It carries only
+       the note — the title is always set beside or beneath it, and at contents
+       size the box is barely 75px wide, which a title cannot survive. */
+    <span class={`cover cover--blank ${className}`.trim()} data-todo="cover-living-wrong-life">
+      <span class="cover__blank">
+        <span class="cover__blank-note">Cover to follow</span>
+      </span>
+    </span>
+  )
+}
+
+<style>
+  .cover {
+    display: flex;
+    align-items: flex-end;
+    height: var(--cover-h, 11rem);
+  }
+
+  /* height drives the size and width follows the jacket's own proportions, so
+     nothing is cropped and the shelf line stays true. object-fit is the safety
+     rail: if a narrow column forces max-width to bite, the cover letterboxes
+     rather than stretching. */
+  .cover img {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: left bottom;
+  }
+
+  .cover--blank {
+    align-items: stretch;
+  }
+
+  .cover__blank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 2 / 3;
+    height: 100%;
+    max-width: 100%;
+    padding: 0.6rem;
+    border: 1px solid var(--ink-25);
+    background: var(--ink-08);
+    /* The box is fixed by --cover-h, so anything that does not fit is clipped
+       rather than allowed to spill onto the caption below. */
+    overflow: hidden;
+  }
+
+  .cover__blank-note {
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--ink-40);
+  }
+</style>

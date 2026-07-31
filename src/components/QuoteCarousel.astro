@@ -1,0 +1,324 @@
+---
+// A rotating endorsement, for the lead book on the homepage.
+//
+// Every slide is stacked in the same grid cell, so the block reserves the
+// height of the LONGEST quote once and nothing moves when it changes. Only
+// opacity animates.
+//
+// Accessibility: auto-rotation stops on hover and on keyboard focus, and there
+// is a real pause control — WCAG 2.2.2 wants a mechanism to stop moving
+// content, and "hover to pause" is not one for a keyboard or touch user.
+// Choosing a quote by hand also stops the rotation for good, on the assumption
+// that someone who took control wants to keep it. With JavaScript off, or with
+// reduced motion asked for, the first quote simply stands.
+
+interface Props {
+  quotes: { quote: string; source: string }[];
+  /** Milliseconds each quote is held. */
+  interval?: number;
+  label?: string;
+}
+
+const { quotes, interval = 6000, label = 'Praise' } = Astro.props;
+---
+
+<div
+  class="carousel"
+  data-carousel
+  data-interval={interval}
+  role="group"
+  aria-roledescription="carousel"
+  aria-label={label}
+>
+  <div class="carousel__stage">
+    {
+      quotes.map((q, i) => (
+        <figure
+          class="carousel__slide"
+          data-slide
+          role="group"
+          aria-roledescription="quotation"
+          aria-label={`${i + 1} of ${quotes.length}`}
+          aria-hidden={i === 0 ? undefined : 'true'}
+          inert={i === 0 ? undefined : true}
+        >
+          <blockquote class="carousel__quote">{q.quote}</blockquote>
+          <figcaption class="carousel__source">{q.source}</figcaption>
+        </figure>
+      ))
+    }
+  </div>
+
+  <div class="carousel__controls">
+    <ul class="carousel__dots">
+      {
+        quotes.map((q, i) => (
+          <li>
+            <button
+              type="button"
+              class="carousel__dot"
+              data-dot
+              aria-current={i === 0 ? 'true' : undefined}
+            >
+              <span class="vh">{`Endorsement ${i + 1}: ${q.source}`}</span>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+
+    <button type="button" class="carousel__pause" data-pause hidden>
+      <span data-pause-label>Pause</span>
+      <span class="vh"> the rotating endorsements</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .carousel {
+    margin-top: var(--sp-md);
+    max-width: 44ch;
+  }
+
+  /* All slides share one cell, so the block is as tall as the longest and
+     nothing below it moves when the quote changes. */
+  .carousel__stage {
+    display: grid;
+  }
+
+  /* Outgoing and incoming share a cell, so a symmetrical crossfade shows both
+     quotes on top of each other at half strength — unreadable. Delaying the
+     fade-IN until the fade-OUT has finished makes it a proper dissolve. */
+  .carousel__slide {
+    grid-area: 1 / 1;
+    margin: 0;
+    opacity: 0;
+    transition: opacity 0.45s var(--ease);
+  }
+
+  .carousel__slide[data-active] {
+    transition-delay: 0.4s;
+  }
+
+  .carousel__slide:first-child {
+    opacity: 1;
+  }
+
+  .carousel__slide[data-active] {
+    opacity: 1;
+  }
+
+  .carousel__slide:not([data-active]):not(:first-child) {
+    opacity: 0;
+  }
+
+  /* Once the script has taken over, :first-child stops being special. */
+  [data-carousel][data-ready] .carousel__slide {
+    opacity: 0;
+  }
+
+  [data-carousel][data-ready] .carousel__slide[data-active] {
+    opacity: 1;
+  }
+
+  .carousel__quote {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+
+  .carousel__quote::before {
+    content: '\201C';
+  }
+
+  .carousel__quote::after {
+    content: '\201D';
+  }
+
+  .carousel__source {
+    margin-top: 0.6rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-60);
+  }
+
+  .carousel__source::before {
+    content: '\2014\00a0';
+  }
+
+  .carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-md);
+    margin-top: var(--sp-md);
+  }
+
+  .carousel__dots {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Short pen strokes rather than bullets, to stay in the same hand as the
+     drawn rules. The button keeps a 44px touch target around a 1px mark. */
+  .carousel__dot {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .carousel__dot::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.5rem;
+    height: 1px;
+    background: var(--ink-25);
+    transition: background-color var(--dur) var(--ease);
+  }
+
+  .carousel__dot:hover::before {
+    background: var(--ink-60);
+  }
+
+  .carousel__dot[aria-current]::before {
+    background: var(--ink);
+    height: 2px;
+  }
+
+  .carousel__pause {
+    padding: 0.35rem 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-family: var(--text);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-40);
+    transition: color var(--dur) var(--ease);
+  }
+
+  .carousel__pause:hover {
+    color: var(--accent);
+  }
+
+  .vh {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-carousel]').forEach((root) => {
+    const slides = Array.from(root.querySelectorAll('[data-slide]'));
+    const dots = Array.from(root.querySelectorAll('[data-dot]'));
+    const pauseBtn = root.querySelector('[data-pause]');
+    const pauseLabel = root.querySelector('[data-pause-label]');
+    if (slides.length < 2) return;
+
+    const interval = Number(root.dataset.interval) || 6000;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let index = 0;
+    let timer = null;
+    // Auto-rotation off means the user turned it off; suspension is a
+    // temporary halt while they hover or tab through.
+    let auto = !reduceMotion;
+    let suspended = false;
+
+    root.setAttribute('data-ready', '');
+    pauseBtn.hidden = reduceMotion;
+
+    function show(next) {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((slide, i) => {
+        const active = i === index;
+        slide.toggleAttribute('data-active', active);
+        // Hidden slides are taken out of the reading order entirely, so a
+        // screen reader or a Tab press never lands on an invisible quote.
+        slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+        slide.inert = !active;
+      });
+      dots.forEach((dot, i) => {
+        if (i === index) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
+      });
+    }
+
+    function tick() {
+      if (!auto || suspended || document.hidden) return;
+      show(index + 1);
+    }
+
+    function start() {
+      stop();
+      if (!auto) return;
+      timer = window.setInterval(tick, interval);
+    }
+
+    function stop() {
+      if (timer !== null) window.clearInterval(timer);
+      timer = null;
+    }
+
+    function setAuto(on) {
+      auto = on;
+      pauseLabel.textContent = on ? 'Pause' : 'Play';
+      if (on) start();
+      else stop();
+    }
+
+    // Hover and focus suspend rather than cancel: reading a quote should not
+    // permanently change the page's behaviour.
+    const suspend = () => {
+      suspended = true;
+    };
+    const resume = () => {
+      suspended = false;
+    };
+    root.addEventListener('mouseenter', suspend);
+    root.addEventListener('mouseleave', resume);
+    root.addEventListener('focusin', suspend);
+    root.addEventListener('focusout', resume);
+
+    dots.forEach((dot, i) =>
+      dot.addEventListener('click', () => {
+        show(i);
+        setAuto(false); // taking control keeps it
+      })
+    );
+
+    pauseBtn.addEventListener('click', () => setAuto(!auto));
+
+    // A background tab starves timers; restart cleanly on return rather than
+    // firing a backlog of transitions at once.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else start();
+    });
+
+    show(0);
+    start();
+  });
+</script>

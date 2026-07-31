@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pinknmatter.github.io/ben-ware-site/sitemap.xml

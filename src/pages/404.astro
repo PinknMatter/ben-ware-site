@@ -1,0 +1,64 @@
+---
+// Not found. GitHub Pages serves /404.html for any unmatched path, so this is
+// the page anyone with a stale or mistyped link lands on — it should read like
+// the rest of the book, and it should get them somewhere useful.
+import Page from '../layouts/Page.astro';
+import Flourish from '../components/Flourish.astro';
+import { site } from '../data/site.js';
+import { u } from '../lib/url.js';
+---
+
+<Page
+  title="Page not found — Ben Ware"
+  socialTitle="Page not found"
+  description="That page is not here."
+>
+  <div class="lost">
+    <p class="label">404</p>
+    <h1 class="lost__title">This leaf is missing</h1>
+    <Flourish variant="short" draw={false} data-intro="1" />
+    <p class="lede lost__lede">
+      The page you asked for is not here. It may have moved, or the address may have picked up a
+      typo on its way to you.
+    </p>
+
+    <ul class="lost__links">
+      <li><a class="link" href={u('/')}>{site.name}</a></li>
+      {
+        site.nav.map((link) => (
+          <li>
+            <a class="link" href={u(link.href)}>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Page>
+
+<style>
+  .lost {
+    padding-block: var(--sp-2xl);
+    max-width: 40rem;
+  }
+
+  .lost__title {
+    margin-top: 0.5rem;
+    font-size: clamp(2.25rem, 6vw, 4rem);
+    letter-spacing: -0.015em;
+  }
+
+  .lost__lede {
+    margin-top: var(--sp-lg);
+  }
+
+  .lost__links {
+    list-style: none;
+    margin: var(--sp-xl) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-md) var(--sp-lg);
+  }
+</style>

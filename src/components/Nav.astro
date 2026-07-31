@@ -1,34 +1,77 @@
 ---
-// Shared nav. `home` lets each concept point the logo at itself;
-// inner pages point it back to the concept index at "/" for now.
-interface Props {
-  home?: string;
-}
-
-const { home = '/' } = Astro.props;
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-
-const links = [
-  { href: '/books', label: 'Books' },
-  { href: '/writing', label: 'Writing & Media' },
-  { href: '/biog', label: 'Biog' },
-];
+// The running head — the classical page header: name at the left, contents at
+// the right, hairline under.
+//
+// Three links do not need a hamburger. On a narrow screen the nav simply wraps
+// to a second line under the name, which is both less code and less to go
+// wrong than a disclosure menu.
+import { site } from '../data/site.js';
 import { u } from '../lib/url.js';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+// Astro.url.pathname carries the deployment base; strip it so the comparison
+// is against the same "/books" the nav is written with.
+const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
 ---
 
-<header class="container">
-  <nav class="site-nav" aria-label="Main">
-    <a class="site-nav__logo" href={u(home)}>Ben Ware</a>
-    <ul class="site-nav__links">
+<header class="head">
+  <div class="measure head__inner">
+    <a class="head__name" href={u('/')}>{site.name}</a>
+    <nav class="head__nav" aria-label="Main">
       {
-        links.map((link) => (
-          <li>
-            <a href={u(link.href)} aria-current={path === link.href ? 'page' : undefined}>
-              {link.label}
-            </a>
-          </li>
+        site.nav.map((link) => (
+          <a
+            href={u(link.href)}
+            aria-current={here === link.href || here.startsWith(`${link.href}/`) ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
         ))
       }
-    </ul>
-  </nav>
+    </nav>
+  </div>
+  <div class="measure"><hr class="hair" /></div>
 </header>
+
+<style>
+  .head__inner {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-sm) var(--sp-md);
+    flex-wrap: wrap;
+    padding-block: var(--sp-md);
+  }
+
+  .head__name,
+  .head__nav a {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .head__nav {
+    display: flex;
+    gap: clamp(1rem, 3vw, 2.25rem);
+  }
+
+  /* The page you are on is marked the way a book marks a running head: not
+     coloured, just held down by a rule. */
+  .head__nav a[aria-current='page'] {
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
+  }
+
+  @media (max-width: 30rem) {
+    .head__nav {
+      gap: 1rem;
+      letter-spacing: 0.14em;
+    }
+
+    .head__nav a {
+      letter-spacing: 0.14em;
+    }
+  }
+</style>

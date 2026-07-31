@@ -1,92 +1,306 @@
 ---
-import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Footer from '../components/Footer.astro';
-import { writing, interviews, videos } from '../data/writing.js';
+// Writing & Media.
+//
+// The essays are grouped under their year, with the year set large in the left
+// margin — a spine down the page, so twelve pieces read as a body of work
+// rather than as one long run of rows. Interviews and recorded talks follow in
+// their own registers.
+import Page from '../layouts/Page.astro';
+import Flourish from '../components/Flourish.astro';
+import { writing, interviews, videos, groupByYear } from '../data/writing.js';
 import { u } from '../lib/url.js';
+
+const years = groupByYear(writing);
+const published = writing.filter((w) => w.url).length;
+
+const sections = [
+  { id: 'essays', label: 'Essays & papers', count: writing.length },
+  { id: 'interviews', label: 'Interviews', count: interviews.length },
+  { id: 'talks', label: 'Talks & lectures', count: videos.length },
+];
 ---
 
-<Base
+<Page
   title="Writing & Media — Ben Ware"
-  description="Recent writing, interviews and videos by Ben Ware — philosopher and social theorist."
+  socialTitle="Writing & Media"
+  description="Essays, papers, interviews and recorded talks by Ben Ware — philosopher and social theorist."
 >
-  <Nav />
-  <main class="container">
-    <div class="page-header">
-      <p class="eyebrow">Writing & Media</p>
-      <h1>Writing & Media</h1>
+  <div class="page-head">
+    <p class="label">Writing &amp; Media</p>
+    <h1 class="page-head__title">Writing</h1>
+    <p class="lede">
+      Essays and papers for <em>e-flux</em>, <em>Lit Hub</em>, <em>TANK</em>, the
+      <em>Los Angeles Review of Books</em> and elsewhere, with interviews and recorded talks.
+    </p>
+  </div>
+
+  <!-- A contents line, so the three registers are visible before you scroll. -->
+  <nav class="jump" aria-label="Sections">
+    <ul>
+      {
+        sections.map((s) => (
+          <li>
+            <a class="jump__link" href={`#${s.id}`}>
+              {s.label}
+              <span class="jump__count">{String(s.count).padStart(2, '0')}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <Flourish hand={0} />
+
+  <!-- ------------------------------------------------------------------
+       Essays and papers, on a year spine.
+  ------------------------------------------------------------------- -->
+  <section class="section" id="essays" aria-labelledby="h-essays">
+    <h2 class="label" id="h-essays">Essays &amp; papers</h2>
+
+    <div class="years">
+      {
+        years.map((group) => (
+          <div class="year">
+            <h3 class="year__no" aria-label={group.year === 'n.d.' ? 'No date' : group.year}>
+              {group.year}
+            </h3>
+            <ul class="entries year__items">
+              {group.items.map((item) =>
+                item.url ? (
+                  <li>
+                    <a
+                      class="entry entry--plain"
+                      href={u(item.url)}
+                      target="_blank"
+                      rel="noopener"
+                      data-todo={item.todo}
+                    >
+                      <span class="entry__text">
+                        <span class="entry__title">{item.title}</span>
+                        {item.venue && <span class="entry__meta">{item.venue}</span>}
+                      </span>
+                      <span class="tag">{item.pdf ? 'PDF' : item.form}</span>
+                    </a>
+                  </li>
+                ) : (
+                  <li>
+                    {/* Nothing to link to yet — this reads as a catalogue entry
+                        awaiting its reference, not as a dead link. */}
+                    <span class="entry entry--plain entry--pending" data-todo={item.todo}>
+                      <span class="entry__text">
+                        <span class="entry__title">{item.title}</span>
+                        <span class="entry__meta">Forthcoming</span>
+                      </span>
+                      <span class="tag">{item.form}</span>
+                    </span>
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
+        ))
+      }
     </div>
 
-    <section aria-labelledby="writing-heading">
-      <p class="eyebrow" id="writing-heading" style="margin-bottom: 1rem;">
-        Some Recent Writing — {String(writing.length).padStart(2, '0')}
-      </p>
-      <ul class="list-rows">
-        {
-          writing.map((item) => (
-            <li>
-              {item.url ? (
-                <a
-                  class="list-row"
-                  href={u(item.url)}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <span class="list-row__title">{item.title}</span>
-                  {item.venue && <span class="list-row__venue">{item.venue}</span>}
-                  {item.year && <span class="list-row__year">{item.year}</span>}
-                </a>
-              ) : (
-                <span class="list-row" data-todo="writing-link">
-                  {/* TODO: link + year to be confirmed by client */}
-                  <span class="list-row__title">{item.title}</span>
-                  {item.venue && <span class="list-row__venue">{item.venue}</span>}
-                  <span class="list-row__pending">link to follow</span>
-                </span>
-              )}
-            </li>
-          ))
-        }
-      </ul>
-    </section>
+    <p class="note">
+      {published} of {writing.length} pieces are linked; the rest are with the publisher.
+    </p>
+  </section>
 
-    <section aria-labelledby="interviews-heading" style="margin-top: clamp(3rem, 8vh, 5rem);">
-      <p class="eyebrow" id="interviews-heading" style="margin-bottom: 1rem;">
-        Interviews — {String(interviews.length).padStart(2, '0')}
-      </p>
-      <ul class="list-rows">
-        {
-          interviews.map((item) => (
-            <li>
-              <a class="list-row" href={u(item.url)} target="_blank" rel="noopener">
-                <span class="list-row__title">{item.title}</span>
-                <span class="list-row__venue">{item.venue}</span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
+  <Flourish hand={1} />
 
-    <section
-      aria-labelledby="videos-heading"
-      style="margin-top: clamp(3rem, 8vh, 5rem); margin-bottom: clamp(4rem, 10vh, 7rem);"
-    >
-      <p class="eyebrow" id="videos-heading" style="margin-bottom: 1rem;">
-        Videos — {String(videos.length).padStart(2, '0')}
-      </p>
-      <ul class="list-rows">
-        {
-          videos.map((item) => (
-            <li>
-              <a class="list-row" href={u(item.url)} target="_blank" rel="noopener">
-                <span class="list-row__title">{item.title}</span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
-  </main>
-  <Footer />
-</Base>
+  <!-- ------------------------------------------------------------------
+       Interviews — the interlocutor is the point, so it is set, not hidden
+       in a parenthetical the way the source document had it.
+  ------------------------------------------------------------------- -->
+  <section class="section" id="interviews" aria-labelledby="h-interviews">
+    <h2 class="label" id="h-interviews">Interviews</h2>
+    <ul class="talks">
+      {
+        interviews.map((item) => (
+          <li>
+            <a class="talk" href={item.url} target="_blank" rel="noopener">
+              <span class="talk__venue label">{item.venue}</span>
+              <span class="talk__title">{item.title}</span>
+              {item.with && <span class="talk__with">{item.with}</span>}
+              <span class="talk__year tag" data-todo={item.todo}>
+                {/* The source material carries no date for either interview. */}
+                {item.year ?? 'Undated'}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <Flourish hand={2} />
+
+  <section class="section" id="talks" aria-labelledby="h-talks">
+    <h2 class="label" id="h-talks">Talks &amp; lectures</h2>
+    <ul class="entries">
+      {
+        videos.map((item) => (
+          <li>
+            <a class="entry" href={item.url} target="_blank" rel="noopener">
+              <span class="entry__year">{item.year}</span>
+              <span class="entry__text">
+                <span class="entry__title">{item.title}</span>
+                {(item.venue || item.with) && (
+                  <span class="entry__meta">{item.venue ?? item.with}</span>
+                )}
+              </span>
+              <span class="tag">{item.form}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Page>
+
+<style>
+  /* ------------------------------------------------------------------
+     Contents line
+  ------------------------------------------------------------------ */
+
+  .jump ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-md) clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .jump__link {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-60);
+    border-bottom: 1px solid var(--ink-18);
+    padding-bottom: 3px;
+    transition:
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+
+  .jump__link:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .jump__count {
+    margin-left: 0.6em;
+    color: var(--ink-25);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ------------------------------------------------------------------
+     The year spine
+  ------------------------------------------------------------------ */
+
+  .years {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-lg);
+  }
+
+  .year {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: var(--sp-md);
+    align-items: start;
+  }
+
+  /* Set large and pale: structure you read past, not a heading that competes
+     with the titles beside it. */
+  .year__no {
+    font-family: var(--display);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    line-height: 1;
+    color: var(--ink-25);
+    font-variant-numeric: tabular-nums;
+    padding-top: 0.9rem;
+  }
+
+  .year__items {
+    border-top: 1px solid var(--ink-18);
+  }
+
+  .note {
+    margin: var(--sp-md) 0 0;
+    font-style: italic;
+    font-size: 0.875rem;
+    color: var(--ink-60);
+  }
+
+  @media (max-width: 40rem) {
+    .year {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.25rem;
+    }
+
+    .year__no {
+      padding-top: 0;
+      font-size: 1.25rem;
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Interviews — a different shape from the ruled rows, so the page does
+     not read as three of the same table.
+  ------------------------------------------------------------------ */
+
+  .talks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .talk {
+    display: block;
+    padding: var(--sp-md) var(--sp-md) var(--sp-lg);
+    border: 1px solid var(--ink-18);
+    height: 100%;
+    transition: border-color var(--dur) var(--ease);
+  }
+
+  .talk:hover {
+    border-color: var(--ink-40);
+  }
+
+  .talk__venue {
+    display: block;
+  }
+
+  .talk__title {
+    display: block;
+    margin-top: var(--sp-sm);
+    font-family: var(--display);
+    font-size: clamp(1.25rem, 2.2vw, 1.7rem);
+    line-height: 1.2;
+    transition: color var(--dur) var(--ease);
+  }
+
+  .talk:hover .talk__title {
+    color: var(--accent);
+  }
+
+  .talk__with {
+    display: block;
+    margin-top: 0.5rem;
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--ink-60);
+  }
+
+  .talk__year {
+    display: block;
+    margin-top: var(--sp-md);
+  }
+</style>

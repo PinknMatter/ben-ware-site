@@ -1,0 +1,75 @@
+---
+// The signature under the title block.
+//
+// Ben has redrawn the BW monogram in his own hand and is sending a scan. Set
+// `signature.src` (and its pixel dimensions) in src/data/site.js and every use
+// of this component switches to the real autograph. Until then it renders the
+// drawn stand-in below, which is NOT Ben's handwriting — it is a placeholder in
+// his style, and is marked data-todo="signature-scan" so it can be found.
+import { signature } from '../data/site.js';
+import { u } from '../lib/url.js';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '', ...rest } = Astro.props;
+---
+
+{
+  signature.src ? (
+    <img
+      class={`signature signature--scan ${className}`.trim()}
+      src={u(signature.src)}
+      alt="Ben Ware's signature"
+      width={signature.width || undefined}
+      height={signature.height || undefined}
+      loading="lazy"
+      {...rest}
+    />
+  ) : (
+    /* Initialled BW, the way a signature is abbreviated: the looped B, the W,
+       then the paraph thrown back underneath. Three strokes in the order a
+       hand makes them; the slant is carried by the skew rather than baked
+       into every coordinate. */
+    <svg
+      class={`signature ${className}`.trim()}
+      viewBox="0 0 180 110"
+      aria-hidden="true"
+      data-todo={signature.todo}
+      {...rest}
+    >
+      <g transform="skewX(-12) translate(20 0)">
+        <path
+          class="ink ink--pen"
+          d="M10,84 C18,60 28,38 38,18 C41,10 51,10 54,18 C58,29 46,38 33,40
+             C48,39 63,44 61,55 C59,66 44,70 31,63"
+        />
+        <path
+          class="ink ink--pen"
+          d="M66,22 C71,44 79,63 87,76 C94,62 99,43 103,22
+             C107,44 114,63 121,76 C128,61 134,41 138,20"
+        />
+        <path class="ink ink--pen" d="M14,95 C52,88 102,99 148,90 C157,88 161,93 153,97" />
+      </g>
+    </svg>
+  )
+}
+
+<style>
+  .signature {
+    display: block;
+    width: clamp(5.5rem, 9vw, 7.5rem);
+    height: auto;
+    margin-top: var(--sp-lg);
+    transform: rotate(-1.5deg);
+    transform-origin: left center;
+    overflow: visible;
+  }
+
+  /* A scan arrives as pixels on white; multiply drops the paper away so it
+     sits on the page rather than in a box. */
+  .signature--scan {
+    mix-blend-mode: multiply;
+  }
+</style>

@@ -1,106 +1,312 @@
 ---
-import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Footer from '../components/Footer.astro';
-import { books } from '../data/books.js';
-
-const VISIBLE_ENDORSEMENTS = 3;
+// The catalogue.
+//
+// Structured the way a bibliography is: authored books first, newest first,
+// then the edited volumes — rather than one undifferentiated run sorted by
+// date, which would open on an edited collection.
+//
+// The page opens on a shelf of all five jackets, which doubles as the contents
+// and gives the eye something to land on before the reading starts. Each work
+// then gets a spread: plate, imprint, title, the one-line hook, where to buy,
+// and a line of praise. The full description and all the praise live on the
+// book's own page.
+import Page from '../layouts/Page.astro';
+import Flourish from '../components/Flourish.astro';
+import BookCover from '../components/BookCover.astro';
+import BuyBlock from '../components/BuyBlock.astro';
+import { books, splitTitle } from '../data/books.js';
 import { u } from '../lib/url.js';
+
+const byYearDesc = (a, b) => Number(b.year) - Number(a.year);
+const authored = books.filter((b) => !b.role).sort(byYearDesc);
+const edited = books.filter((b) => b.role === 'editor').sort(byYearDesc);
+const groups = [
+  { label: 'Books', works: authored },
+  { label: 'Edited volumes', works: edited },
+];
+const shelf = [...authored, ...edited];
+
+const origin = Astro.site ?? 'http://localhost:4321';
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Books by Ben Ware',
+  itemListElement: shelf.map((book, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: new URL(u(`/books/${book.slug}`), origin).href,
+    name: book.title,
+  })),
+};
 ---
 
-<Base
+<Page
   title="Books — Ben Ware"
-  description="Books by Ben Ware — philosopher and social theorist. On Extinction, Living Wrong Life Rightly, Dialectic of the Ladder, Bacon Disfigured, Francis Bacon: Painting, Philosophy, Psychoanalysis."
+  socialTitle="Books"
+  description="Books by Ben Ware — On Extinction, Living Wrong Life Rightly, Dialectic of the Ladder, Bacon Disfigured, and Francis Bacon: Painting, Philosophy, Psychoanalysis."
+  schema={schema}
 >
-  <Nav />
-  <main class="container">
-    <div class="page-header">
-      <p class="eyebrow">Books — 05</p>
-      <h1>Books</h1>
-    </div>
+  <div class="page-head">
+    <p class="label">Catalogue</p>
+    <h1 class="page-head__title">Books</h1>
+    <p class="lede">
+      Three books on modernism, ethics and the end of the world, and two volumes on Francis Bacon
+      edited with the Estate of Francis Bacon.
+    </p>
+  </div>
 
-    {
-      books.map((book, i) => (
-        <>
-          <hr class="rule" />
-          <article class="book" id={book.slug}>
-            <div>
-              <img
-                class="book__cover"
-                src={u(book.cover)}
-                alt={`Cover of ${book.shortTitle}`}
-                width="340"
-                height="510"
-                loading={i === 0 ? 'eager' : 'lazy'}
-                data-todo={book.coverIsPlaceholder ? 'cover-living-wrong-life' : undefined}
-              />
-            </div>
-            <div>
-              <p class="eyebrow">
-                {book.publisher} — {book.year}
-                {book.role ? ` — ${book.role}` : ''}
-              </p>
-              <h2 class="book__title">{book.title}</h2>
-              <p class="book__blurb">{book.blurb}</p>
-              <div class="book__links">
-                <a
-                  class="text-link"
-                  href={u(book.publisherUrl)}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Publisher ↗
+  <!-- The contents, set as a shelf: jackets bottom-aligned on a shelf line,
+       each jumping to its entry below. -->
+  <nav class="shelf" aria-label="Contents">
+    <ul>
+      {
+        shelf.map((book) => (
+          <li>
+            <a class="shelf__item" href={`#${book.slug}`}>
+              <BookCover book={book} decorative />
+              <span class="shelf__title">{book.shortTitle}</span>
+              <span class="shelf__year">{book.year}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  {
+    groups.map((group, gi) => (
+      <section class="group" aria-labelledby={`group-${gi}`}>
+        <Flourish hand={gi} />
+        <h2 class="label group__label" id={`group-${gi}`}>
+          {group.label}
+        </h2>
+
+        {group.works.map((book, i) => {
+          const t = splitTitle(book.title);
+          // The most quotable line, not whichever happens to be first — a
+          // sixty-word paragraph set as a pull quote is not a pull quote.
+          const praise = [...book.endorsements].sort((a, b) => a.quote.length - b.quote.length)[0];
+          return (
+            <article class="work" id={book.slug}>
+              <div class="work__plate">
+                <a href={u(`/books/${book.slug}`)} tabindex="-1" aria-hidden="true">
+                  <BookCover book={book} decorative loading={gi === 0 && i === 0 ? 'eager' : 'lazy'} />
                 </a>
-                {/* TODO: real Amazon links to follow from client */}
-                <a class="text-link" href="#" data-todo="amazon-link">
-                  Amazon ↗
-                </a>
+                <div class="work__buy work__buy--wide">
+                  <BuyBlock book={book} />
+                </div>
               </div>
 
-              {book.endorsements.length > 0 && (
-                <div class="endorsements">
-                  <p class="eyebrow">Praise</p>
-                  {book.endorsements.slice(0, VISIBLE_ENDORSEMENTS).map((e) => (
-                    <blockquote class="endorsement">
-                      <p>“{e.quote}”</p>
-                      <cite set:html={e.source} />
-                    </blockquote>
-                  ))}
-                  {book.endorsements.length > VISIBLE_ENDORSEMENTS && (
-                    <>
-                      <div class="endorsements__more" hidden>
-                        {book.endorsements.slice(VISIBLE_ENDORSEMENTS).map((e) => (
-                          <blockquote class="endorsement">
-                            <p>“{e.quote}”</p>
-                            <cite set:html={e.source} />
-                          </blockquote>
-                        ))}
-                      </div>
-                      <button class="praise-toggle" type="button" aria-expanded="false">
-                        More praise ↓
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </article>
-        </>
-      ))
-    }
-  </main>
-  <Footer />
+              <div class="work__text">
+                <p class="label">
+                  {book.publisher} — {book.year}
+                  {book.role ? ` — ${book.role}` : ''}
+                </p>
 
-  <script>
-    // Plain-JS collapse for long endorsement lists.
-    document.querySelectorAll('.praise-toggle').forEach((button) => {
-      button.addEventListener('click', () => {
-        const more = button.previousElementSibling;
-        const expanded = button.getAttribute('aria-expanded') === 'true';
-        more.hidden = expanded;
-        button.setAttribute('aria-expanded', String(!expanded));
-        button.textContent = expanded ? 'More praise ↓' : 'Less praise ↑';
-      });
-    });
-  </script>
-</Base>
+                <h3 class="work__title">
+                  <a href={u(`/books/${book.slug}`)}>
+                    {t.main}
+                    {t.sub && <span class="work__sub">{t.sub}</span>}
+                  </a>
+                </h3>
+
+                {book.publishedAs && (
+                  <p class="work__alt">
+                    Published as <em>{book.publishedAs}</em>
+                  </p>
+                )}
+
+                <p class="work__hook">{book.hook}</p>
+
+                {praise && (
+                  <blockquote class="work__praise">
+                    <p>{praise.quote}</p>
+                    <cite set:html={praise.source} />
+                  </blockquote>
+                )}
+
+                <p class="more">
+                  <a class="link link--sm" href={u(`/books/${book.slug}`)}>
+                    Read more
+                  </a>
+                </p>
+
+                <div class="work__buy work__buy--narrow">
+                  <BuyBlock book={book} />
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+    ))
+  }
+</Page>
+
+<style>
+  /* ------------------------------------------------------------------
+     Contents shelf
+  ------------------------------------------------------------------ */
+
+  .shelf ul {
+    --cover-h: clamp(7rem, 12vw, 10rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr));
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    /* The cover box is a fixed height with the jacket on its floor, so
+       top-aligning the items is what makes the shelf line true. */
+    align-items: start;
+  }
+
+  .shelf__title {
+    display: block;
+    margin-top: 0.6rem;
+    font-family: var(--display);
+    font-size: 0.9375rem;
+    line-height: 1.25;
+    transition: color var(--dur) var(--ease);
+  }
+
+  .shelf__item:hover .shelf__title {
+    color: var(--accent);
+  }
+
+  .shelf__year {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-40);
+  }
+
+  /* ------------------------------------------------------------------
+     Groups and works
+  ------------------------------------------------------------------ */
+
+  .group__label {
+    margin-bottom: var(--sp-lg);
+  }
+
+  .work {
+    display: grid;
+    grid-template-columns: clamp(9rem, 20vw, 13rem) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: start;
+    padding-block: 0 var(--sp-2xl);
+  }
+
+  .work:last-child {
+    padding-bottom: var(--sp-xl);
+  }
+
+  .work__plate {
+    --cover-h: clamp(12rem, 26vw, 19.5rem);
+  }
+
+  .work__title {
+    margin: 0.6rem 0 0;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.12;
+  }
+
+  .work__sub {
+    display: block;
+    margin-top: 0.18em;
+    font-size: 0.6em;
+    line-height: 1.25;
+    color: var(--ink-70);
+  }
+
+  .work__title a {
+    transition: color var(--dur) var(--ease);
+  }
+
+  .work__title a:hover {
+    color: var(--accent);
+  }
+
+  /* Only Living Wrong Life Rightly needs this: Ben's title is the one the
+     site sets, and the publisher's inversion is recorded underneath. */
+  .work__alt {
+    margin: 0.6rem 0 0;
+    font-size: 0.875rem;
+    color: var(--ink-60);
+  }
+
+  .work__hook {
+    margin: var(--sp-md) 0 0;
+    max-width: 52ch;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+  }
+
+  /* One line of praise, set as a pull quote — the rest are on the book's own
+     page, where there is room for them. */
+  .work__praise {
+    margin: var(--sp-lg) 0 0;
+    padding-left: var(--sp-md);
+    border-left: 1px solid var(--ink-18);
+    max-width: 48ch;
+  }
+
+  .work__praise p {
+    margin: 0;
+    font-family: var(--display);
+    font-style: italic;
+    font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+    line-height: 1.5;
+  }
+
+  .work__praise p::before {
+    content: '\201C';
+  }
+
+  .work__praise p::after {
+    content: '\201D';
+  }
+
+  .work__praise cite {
+    display: block;
+    margin-top: 0.6rem;
+    font-style: normal;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-60);
+  }
+
+  .work__praise cite :global(em) {
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0.06em;
+  }
+
+  /* The buy block belongs under the jacket on a wide screen and under the
+     text on a narrow one; it is rendered twice and one is always hidden,
+     which keeps both reading orders sensible without any JavaScript. */
+  .work__buy--narrow {
+    display: none;
+  }
+
+  @media (max-width: 46rem) {
+    .work {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--sp-md);
+    }
+
+    .work__plate {
+      --cover-h: clamp(10rem, 34vw, 14rem);
+    }
+
+    .work__buy--wide {
+      display: none;
+    }
+
+    .work__buy--narrow {
+      display: block;
+    }
+  }
+</style>

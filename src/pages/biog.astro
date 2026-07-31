@@ -1,73 +1,254 @@
 ---
-import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Footer from '../components/Footer.astro';
+// Biog.
+//
+// The portrait is mounted as a plate again — the frontispiece the homepage
+// opens with, now facing the life rather than the name. The prose runs at a
+// reading measure with a drop capital; the appointments, representation and
+// works sit beside it as a margin apparatus, which is what a scholarly page
+// does with facts that are looked up rather than read.
+//
+// The copy here is the client's current text. Ben is revising it and adding a
+// paragraph — everything marked data-todo="biog-copy-revision" is due to be
+// replaced, and the layout takes another paragraph without any change.
+import Page from '../layouts/Page.astro';
+import Flourish from '../components/Flourish.astro';
+import Signature from '../components/Signature.astro';
+import { books } from '../data/books.js';
+import { site, affiliations, representation } from '../data/site.js';
 import { u } from '../lib/url.js';
+
+const works = [...books].sort((a, b) => Number(b.year) - Number(a.year));
 ---
 
-<Base
+<Page
   title="Biog — Ben Ware"
-  description="Ben Ware is a philosopher and social theorist based in London, UK."
+  socialTitle="Biog"
+  description="Ben Ware is a philosopher and social theorist based in London, Co-Director of the Centre for Philosophy and Art at King's College London."
 >
-  <Nav />
-  <main class="container">
-    <div class="page-header">
-      <p class="eyebrow">Biog — 01</p>
-      <h1>Biog</h1>
+  <div class="page-head">
+    <p class="label">Biog</p>
+    <h1 class="page-head__title">Ben Ware</h1>
+  </div>
+
+  <div class="biog">
+    <!-- ----------------------------------------------------------------
+         The life, at a reading measure.
+    ----------------------------------------------------------------- -->
+    <div class="biog__life">
+      <div class="prose prose--opening" data-todo="biog-copy-revision">
+        <!-- The client's own sentence, kept verbatim. Everything in this
+             column is placeholder copy pending his revision and the extra
+             paragraph he is writing; nothing here characterises his work
+             beyond what his own material already says. -->
+        <p>Ben Ware is a philosopher and social theorist based in {site.place}.</p>
+
+        <p>
+          He is Co-Director of the <a
+            class="link"
+            href={affiliations[0].url}
+            target="_blank"
+            rel="noopener"
+            data-todo={affiliations[0].todo}>Centre for Philosophy and Art</a
+          > at King’s College London, where he is also a Senior Research Fellow in Philosophy. He
+          serves on the faculty of the para-academic institute <a
+            class="link"
+            href={affiliations[1].url}
+            target="_blank"
+            rel="noopener"
+            data-todo={affiliations[1].todo}>BICAR</a
+          >.
+        </p>
+
+        <p>
+          His books include <a class="link" href={u('/books/on-extinction')}
+            ><em>On Extinction: Beginning Again at the End</em></a
+          > (Verso, 2024); <a class="link" href={u('/books/living-wrong-life-rightly')}
+            ><em>Living Wrong Life Rightly</em></a
+          > (Palgrave Macmillan, 2017); and <a class="link" href={u('/books/dialectic-of-the-ladder')}
+            ><em>Dialectic of the Ladder: Wittgenstein, the ‘Tractatus’ and Modernism</em></a
+          > (Bloomsbury, 2015). He is also the editor of <a class="link" href={u('/books/bacon-disfigured')}
+            ><em>Bacon Disfigured</em></a
+          > (Thames &amp; Hudson, 2026) and <a
+            class="link"
+            href={u('/books/bacon-painting-philosophy-psychoanalysis')}
+            ><em>Francis Bacon: Painting, Philosophy, Psychoanalysis</em></a
+          > (Thames &amp; Hudson, 2019), both produced with the Estate of Francis Bacon.
+        </p>
+
+        <p>
+          His writing has appeared in <em>e-flux</em>, the <em>Los Angeles Review of Books</em>,
+          <em>TANK</em> and <em>Lit Hub</em>, among others. His forthcoming book explores the
+          politics and moral psychology of <em>Coldness</em>.
+        </p>
+      </div>
+
+      <Signature class="biog__signature" data-intro="1" />
     </div>
 
-    <div class="biog">
-      <img
-        class="biog__portrait"
-        src={u('/images/ben-ware-portrait.jpg')}
-        alt="Portrait of Ben Ware"
-        width="320"
-        height="400"
-      />
+    <!-- ----------------------------------------------------------------
+         The apparatus.
+    ----------------------------------------------------------------- -->
+    <aside class="biog__margin" aria-label="Details">
+      <figure class="plate">
+        <span class="plate__mount">
+          <img
+            src={u('/images/ben-ware-portrait.jpg')}
+            alt="Ben Ware"
+            width="759"
+            height="986"
+            loading="eager"
+          />
+        </span>
+        <figcaption class="plate__caption" data-todo="portrait-credit">{site.place}</figcaption>
+      </figure>
 
-      <p>Ben Ware is a philosopher and social theorist based in London, UK.</p>
+      <section class="margin-block" aria-labelledby="h-appointments">
+        <h2 class="label" id="h-appointments">Appointments</h2>
+        <ul class="margin-list">
+          {
+            affiliations.map((a) => (
+              <li>
+                <a class="link link--sm" href={a.url} target="_blank" rel="noopener" data-todo={a.todo}>
+                  {a.label}
+                </a>
+                <span class="margin-list__meta">
+                  {a.role}, {a.org}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
 
-      <p>
-        He is Co-Director of the
-        <!-- TODO: verify KCL centre URL with client -->
-        <a
-          href="https://www.kcl.ac.uk/research/centre-for-philosophy-and-visual-arts"
-          target="_blank"
-          rel="noopener"
-          data-todo="verify-kcl-url">Centre for Philosophy and Art at King’s College London</a
-        > where he is also a Senior Research Fellow in Philosophy. He also serves on the Faculty of
-        the para-academic institute
-        <!-- TODO: verify BICAR URL with client -->
-        <a href="https://www.bicar.org" target="_blank" rel="noopener" data-todo="verify-bicar-url"
-          >BICAR</a
-        >.
-      </p>
+      <section class="margin-block" aria-labelledby="h-representation">
+        <h2 class="label" id="h-representation">Representation</h2>
+        <ul class="margin-list">
+          <li>
+            <a
+              class="link link--sm"
+              href={representation.agencyUrl}
+              target="_blank"
+              rel="noopener">{representation.agency}</a
+            >
+            <span class="margin-list__meta">{representation.agent}</span>
+          </li>
+        </ul>
+        <p class="margin-note" data-todo={representation.todo}>
+          Speaking, press and rights enquiries go through the agency; a direct address will follow.
+        </p>
+      </section>
+    </aside>
+  </div>
 
-      <p>
-        His books include <a href={u('/books#on-extinction')}><em>On Extinction: Beginning Again at the End</em></a>
-        (Verso, 2024); <a href={u('/books#living-wrong-life-rightly')}><em>Living Wrong Life Rightly</em></a>
-        (Palgrave, 2017); and
-        <a href={u('/books#dialectic-of-the-ladder')}><em>Dialectic of the Ladder: Wittgenstein, the ‘Tractatus’ and Modernism</em></a>
-        (Bloomsbury, 2015). He is also editor of
-        <a href={u('/books#bacon-disfigured')}><em>Bacon Disfigured</em></a> (Thames &amp; Hudson, 2026); and
-        <a href={u('/books#bacon-painting-philosophy-psychoanalysis')}><em>Francis Bacon: Painting, Philosophy, Psychoanalysis</em></a>
-        (Thames &amp; Hudson, 2019) — both collaborations with the Estate of Francis Bacon. His
-        writing has appeared in <em>Los Angeles Review of Books</em>, <em>e-flux</em>,
-        <em>TANK</em>, and <em>Lit Hub</em>, among others.
-      </p>
+  <Flourish hand={1} />
 
-      <p>
-        His forthcoming book explores the politics and moral psychology of <em>Coldness</em>.
-      </p>
+  <!-- A short-form bibliography, for anyone who came here to cite him. -->
+  <section class="section" aria-labelledby="h-works">
+    <h2 class="label" id="h-works">Works</h2>
+    <ul class="entries">
+      {
+        works.map((book) => (
+          <li>
+            <a class="entry" href={u(`/books/${book.slug}`)}>
+              <span class="entry__year">{book.year}</span>
+              <span class="entry__text">
+                <span class="entry__title">{book.title}</span>
+                <span class="entry__meta">
+                  {book.publisher}
+                  {book.role ? ` — as ${book.role}` : ''}
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Page>
 
-      <p>
-        He is represented by Clare Conville at
-        <!-- TODO: verify C&W Agency URL with client -->
-        <a href="https://cwagency.co.uk" target="_blank" rel="noopener" data-todo="verify-cw-url"
-          >C&amp;W Agency</a
-        >.
-      </p>
-    </div>
-  </main>
-  <Footer />
-</Base>
+<style>
+  .biog {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(15rem, 30%, 20rem);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  .prose--opening > p:first-of-type::first-letter {
+    float: left;
+    font-family: var(--display);
+    font-size: 3.4em;
+    line-height: 0.8;
+    padding: 0.06em 0.1em 0 0;
+  }
+
+  .biog__signature {
+    margin-top: var(--sp-xl);
+  }
+
+  /* ------------------------------------------------------------------
+     The margin apparatus
+  ------------------------------------------------------------------ */
+
+  .biog__margin {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-lg);
+  }
+
+  .biog__margin img {
+    filter: contrast(1.03);
+  }
+
+  .margin-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-sm);
+  }
+
+  .margin-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-md);
+  }
+
+  .margin-list > li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .margin-list__meta {
+    font-style: italic;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--ink-60);
+  }
+
+  .margin-note {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--ink-60);
+  }
+
+  /* Narrow leaf: the portrait leads, then the life, then the apparatus. */
+  @media (max-width: 51rem) {
+    .biog {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--sp-xl);
+    }
+
+    .biog__margin {
+      order: -1;
+    }
+
+    .biog__margin .plate {
+      width: min(100%, 18rem);
+    }
+  }
+</style>

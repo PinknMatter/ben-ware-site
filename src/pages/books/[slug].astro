@@ -1,0 +1,406 @@
+---
+// A book's own page: the title page, then the description, then the praise.
+//
+// The order deliberately matches a jacket — you meet the object, you find out
+// where to get it, then you read about it, then you read what other people
+// said. Praise leads with one quote set large; the remainder is folded away so
+// twelve endorsements never become the page.
+import Page from '../../layouts/Page.astro';
+import Flourish from '../../components/Flourish.astro';
+import BookCover from '../../components/BookCover.astro';
+import BuyBlock from '../../components/BuyBlock.astro';
+import { books, splitTitle } from '../../data/books.js';
+import { u } from '../../lib/url.js';
+
+export function getStaticPaths() {
+  // Authored first, newest first, then the edited volumes — the same order the
+  // catalogue uses, so "next book" walks the page you just came from.
+  const byYearDesc = (a, b) => Number(b.year) - Number(a.year);
+  const ordered = [
+    ...books.filter((b) => !b.role).sort(byYearDesc),
+    ...books.filter((b) => b.role === 'editor').sort(byYearDesc),
+  ];
+
+  return ordered.map((book, i) => ({
+    params: { slug: book.slug },
+    props: {
+      book,
+      prev: ordered[i - 1] ?? null,
+      next: ordered[i + 1] ?? null,
+    },
+  }));
+}
+
+const { book, prev, next } = Astro.props;
+const t = splitTitle(book.title);
+
+// The lead is set large, so it wants the most quotable line rather than
+// whichever endorsement happens to be first — a 60-word paragraph at display
+// size becomes a wall. Shortest wins; the rest keep their given order below.
+const leadPraise = [...book.endorsements].sort((a, b) => a.quote.length - b.quote.length)[0];
+const restPraise = book.endorsements.filter((e) => e !== leadPraise);
+const forthcoming = Number(book.year) > new Date().getFullYear();
+
+const origin = Astro.site ?? 'http://localhost:4321';
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: book.title,
+  author: { '@type': 'Person', name: 'Ben Ware' },
+  publisher: { '@type': 'Organization', name: book.publisher },
+  datePublished: book.year,
+  description: book.blurb,
+  url: new URL(u(`/books/${book.slug}`), origin).href,
+  ...(book.cover ? { image: new URL(u(book.cover), origin).href } : {}),
+  ...(book.publishedAs ? { alternateName: book.publishedAs } : {}),
+};
+---
+
+<Page
+  title={`${book.shortTitle} — Ben Ware`}
+  socialTitle={book.title}
+  description={book.hook}
+  schema={schema}
+  image={book.cover ?? undefined}
+>
+  <p class="crumb">
+    <a class="link link--sm" href={u('/books')}>← All books</a>
+  </p>
+
+  <!-- ------------------------------------------------------------------
+       The title page: jacket left, imprint and title right, where to buy
+       directly beneath.
+  ------------------------------------------------------------------- -->
+  <article class="title-page">
+    <div class="title-page__plate">
+      <BookCover book={book} loading="eager" />
+    </div>
+
+    <div class="title-page__text">
+      <p class="label">
+        {book.publisher} — {book.year}
+        {book.role ? ` — ${book.role}` : ''}
+      </p>
+
+      <h1 class="title-page__title">
+        {t.main}{t.sub && <span class="title-page__sub">{t.sub}</span>}
+      </h1>
+
+      {
+        book.publishedAs && (
+          /* Ben's own title is the one the site sets; Palgrave inverted it on
+             the jacket, and he uses his original whenever he describes the
+             book. Both are recorded so a search for either finds it. */
+          <p class="title-page__alt">
+            Published by {book.publisher} as <em>{book.publishedAs}</em>
+          </p>
+        )
+      }
+
+      {forthcoming && <p class="tag title-page__flag">Forthcoming</p>}
+
+      <p class="lede title-page__hook">{book.hook}</p>
+
+      <BuyBlock book={book} />
+    </div>
+  </article>
+
+  <Flourish hand={1} />
+
+  <section class="section" aria-labelledby="h-about">
+    <h2 class="label" id="h-about">About the book</h2>
+    <div class="prose prose--opening">
+      <p>{book.blurb}</p>
+    </div>
+  </section>
+
+  {
+    book.endorsements.length > 0 && (
+      <>
+        <Flourish hand={2} />
+
+        <section class="section praise" aria-labelledby="h-praise">
+          <h2 class="label" id="h-praise">Praise</h2>
+
+          <blockquote class="praise__lead">
+            <p>{leadPraise.quote}</p>
+            <cite set:html={leadPraise.source} />
+          </blockquote>
+
+          {restPraise.length > 0 && (
+            <div class="praise__rest">
+              <div id={`more-praise-${book.slug}`} class="praise__list" hidden>
+                {restPraise.map((e) => (
+                  <blockquote class="praise__item">
+                    <p>{e.quote}</p>
+                    <cite set:html={e.source} />
+                  </blockquote>
+                ))}
+              </div>
+              <button
+                class="praise__toggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls={`more-praise-${book.slug}`}
+                data-praise-toggle
+                data-count={restPraise.length}
+              >
+                {`Read ${restPraise.length} more ↓`}
+              </button>
+            </div>
+          )}
+        </section>
+      </>
+    )
+  }
+
+  <!-- Turning the leaf: the neighbouring works, in catalogue order. -->
+  <nav class="turn" aria-label="Other books">
+    <hr class="hair" />
+    <div class="turn__row">
+      {
+        prev ? (
+          <a class="turn__link turn__link--prev" href={u(`/books/${prev.slug}`)}>
+            <span class="label">Previous</span>
+            <span class="turn__title">{prev.shortTitle}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next && (
+          <a class="turn__link turn__link--next" href={u(`/books/${next.slug}`)}>
+            <span class="label">Next</span>
+            <span class="turn__title">{next.shortTitle}</span>
+          </a>
+        )
+      }
+    </div>
+  </nav>
+</Page>
+
+<style>
+  .crumb {
+    margin: 0;
+    padding-top: var(--sp-lg);
+  }
+
+  /* ------------------------------------------------------------------
+     Title page
+  ------------------------------------------------------------------ */
+
+  .title-page {
+    display: grid;
+    grid-template-columns: clamp(11rem, 26vw, 17rem) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+    padding-block: var(--sp-lg) var(--sp-md);
+  }
+
+  .title-page__plate {
+    --cover-h: clamp(13rem, 30vw, 21rem);
+  }
+
+  .title-page__title {
+    margin-top: 0.5rem;
+    font-size: clamp(2rem, 4.2vw, 3.25rem);
+    letter-spacing: -0.012em;
+    line-height: 1.08;
+  }
+
+  .title-page__sub {
+    display: block;
+    margin-top: 0.2em;
+    font-size: 0.55em;
+    line-height: 1.25;
+    color: var(--ink-70);
+  }
+
+  .title-page__alt {
+    margin: 0.8rem 0 0;
+    font-size: 0.9375rem;
+    color: var(--ink-60);
+  }
+
+  .title-page__flag {
+    margin: 0.9rem 0 0;
+  }
+
+  .title-page__hook {
+    margin-top: var(--sp-md);
+  }
+
+  /* ------------------------------------------------------------------
+     Description — opened with a drop capital, as a chapter is
+  ------------------------------------------------------------------ */
+
+  .prose--opening > p:first-of-type::first-letter {
+    float: left;
+    font-family: var(--display);
+    font-size: 3.4em;
+    line-height: 0.8;
+    padding: 0.06em 0.1em 0 0;
+  }
+
+  /* ------------------------------------------------------------------
+     Praise
+  ------------------------------------------------------------------ */
+
+  .praise__lead {
+    margin: 0;
+  }
+
+  /* The measure belongs to the quote, not to the block — an attribution held
+     to 30ch breaks a book title across two lines. */
+  .praise__lead p {
+    margin: 0;
+    max-width: 30ch;
+    font-family: var(--display);
+    font-style: italic;
+    font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+    line-height: 1.35;
+  }
+
+  .praise__lead p::before {
+    content: '\201C';
+    margin-left: -0.4em;
+  }
+
+  .praise__lead p::after {
+    content: '\201D';
+  }
+
+  .praise__lead cite,
+  .praise__item cite {
+    display: block;
+    max-width: 52ch;
+    margin-top: 0.7rem;
+    font-style: normal;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-60);
+  }
+
+  .praise__lead cite :global(em),
+  .praise__item cite :global(em) {
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0.06em;
+  }
+
+  .praise__rest {
+    margin-top: var(--sp-lg);
+  }
+
+  .praise__list {
+    columns: 2;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+    margin-bottom: var(--sp-md);
+  }
+
+  .praise__item {
+    /* Keep a quote and its attribution in the same column. */
+    break-inside: avoid;
+    margin: 0 0 var(--sp-lg);
+    padding-left: var(--sp-md);
+    border-left: 1px solid var(--ink-18);
+  }
+
+  .praise__item p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .praise__item p::before {
+    content: '\201C';
+  }
+
+  .praise__item p::after {
+    content: '\201D';
+  }
+
+  .praise__toggle {
+    padding: 0 0 2px;
+    border: 0;
+    border-bottom: 1px solid var(--ink-25);
+    background: none;
+    cursor: pointer;
+    font-family: var(--text);
+    font-size: 0.9375rem;
+    color: var(--ink);
+    transition:
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+
+  .praise__toggle:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  @media (max-width: 46rem) {
+    .title-page {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--sp-lg);
+    }
+
+    .title-page__plate {
+      width: min(100%, 15rem);
+      --cover-h: clamp(11rem, 40vw, 15rem);
+    }
+
+    .praise__list {
+      columns: 1;
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Turning the leaf
+  ------------------------------------------------------------------ */
+
+  .turn {
+    margin-top: var(--sp-2xl);
+  }
+
+  .turn__row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-lg);
+    padding-top: var(--sp-md);
+  }
+
+  .turn__link--next {
+    text-align: right;
+    margin-left: auto;
+  }
+
+  .turn__title {
+    display: block;
+    margin-top: 0.3rem;
+    font-family: var(--display);
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    line-height: 1.2;
+    transition: color var(--dur) var(--ease);
+  }
+
+  .turn__link:hover .turn__title {
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  // Plain-JS disclosure for the remaining endorsements.
+  document.querySelectorAll('[data-praise-toggle]').forEach((button) => {
+    const list = document.getElementById(button.getAttribute('aria-controls'));
+    const count = button.dataset.count;
+    button.addEventListener('click', () => {
+      const expanded = button.getAttribute('aria-expanded') === 'true';
+      list.hidden = expanded;
+      button.setAttribute('aria-expanded', String(!expanded));
+      button.textContent = expanded ? `Read ${count} more ↓` : 'Show less ↑';
+    });
+  });
+</script>

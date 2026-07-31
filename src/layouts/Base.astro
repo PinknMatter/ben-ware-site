@@ -1,15 +1,33 @@
 ---
+// The document shell: head, metadata, fonts. Nothing visual lives here — the
+// page furniture is in Page.astro.
 import '../styles/global.css';
+import { site, ogImage } from '../data/site.js';
+import { u } from '../lib/url.js';
 
 interface Props {
   title: string;
   description?: string;
+  /** Overrides the <title> used for social cards, which wants no site suffix. */
+  socialTitle?: string;
+  /** JSON-LD, serialised into a script tag. */
+  schema?: object | null;
+  image?: string;
 }
 
 const {
   title,
-  description = 'Ben Ware — Philosopher and social theorist',
+  description = site.description,
+  socialTitle,
+  schema = null,
+  image = ogImage,
 } = Astro.props;
+
+// Astro.site is the deployment origin; pathname already carries the base path,
+// so this is the real public address of the page in production and a harmless
+// approximation in dev.
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site ?? 'http://localhost:4321');
+const imageUrl = new URL(u(image), Astro.site ?? 'http://localhost:4321');
 ---
 
 <!doctype html>
@@ -19,12 +37,31 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+    <meta name="author" content={site.name} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={socialTitle ?? title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={imageUrl.href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={socialTitle ?? title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl.href} />
+
+    <meta name="theme-color" content="#ffffff" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- One family, two cuts: Display for titles, Text for reading. -->
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Spectral:ital,wght@0,200;0,300;0,400;1,300;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap"
     />
+
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
   </head>
   <body>
     <slot />

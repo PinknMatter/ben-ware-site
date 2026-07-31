@@ -1,11 +1,98 @@
 ---
+// The colophon — the foot of the leaf, on the same margin seam as everything
+// above it.
+import { site, affiliations } from '../data/site.js';
+import { u } from '../lib/url.js';
+
 const year = new Date().getFullYear();
 ---
 
-<div class="container">
-  <hr class="rule" />
-  <footer class="site-footer">
-    <span>© {year} Ben Ware</span>
-    <span>London, UK</span>
-  </footer>
-</div>
+<footer class="colophon">
+  <div class="measure">
+    <hr class="hair" />
+    <div class="colophon__grid">
+      <div class="colophon__cols">
+        <nav class="colophon__col" aria-labelledby="foot-site">
+          <h2 class="label" id="foot-site">Site</h2>
+          <ul>
+            {
+              site.nav.map((link) => (
+                <li>
+                  <a class="link link--sm" href={u(link.href)}>
+                    {link.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <nav class="colophon__col" aria-labelledby="foot-elsewhere">
+          <h2 class="label" id="foot-elsewhere">Elsewhere</h2>
+          <ul>
+            {
+              affiliations.map((a) => (
+                <li>
+                  <a
+                    class="link link--sm"
+                    href={a.url}
+                    target="_blank"
+                    rel="noopener"
+                    data-todo={a.todo}
+                  >
+                    {a.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+
+      <p class="colophon__imprint">
+        <span>© {year} {site.name}</span>
+        <span>{site.place}</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .colophon {
+    margin-top: var(--sp-2xl);
+    padding-bottom: var(--sp-xl);
+  }
+
+  .colophon__grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-lg);
+    padding-top: var(--sp-lg);
+  }
+
+  .colophon__cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: var(--sp-lg);
+    max-width: 44rem;
+  }
+
+  .colophon__col ul {
+    list-style: none;
+    margin: var(--sp-sm) 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+
+  .colophon__imprint {
+    margin: 0;
+    display: flex;
+    gap: var(--sp-md);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    color: var(--ink-60);
+  }
+</style>

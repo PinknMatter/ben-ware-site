@@ -1,0 +1,120 @@
+---
+// Every page is a leaf of the same book: running head, the measure, colophon.
+import Base from './Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  socialTitle?: string;
+  schema?: object | null;
+  image?: string;
+}
+
+const { title, description, socialTitle, schema, image } = Astro.props;
+---
+
+<Base title={title} description={description} socialTitle={socialTitle} schema={schema} image={image}>
+  <a class="skip" href="#main">Skip to content</a>
+  <Nav />
+  <main id="main" class="measure">
+    <slot />
+  </main>
+  <Footer />
+
+  <script>
+    // Drawing the pen marks. [data-intro] draws on load, in the order given;
+    // [data-draw] draws as it is scrolled to.
+    //
+    // This is hand-rolled rather than a plugin, for one reason: the marks use
+    // vector-effect: non-scaling-stroke, so the browser applies
+    // stroke-dasharray in SCREEN pixels while getTotalLength() reports the path
+    // in viewBox units. A generic draw-on plugin sets the dash from
+    // getTotalLength() and gets it wrong by exactly the element's scale factor
+    // — which is what made the section rules appear as two strokes with a gap.
+    // Measuring the element's own scale and converting is a dozen lines, it is
+    // correct at any width, and it re-measures on resize, which a plugin does
+    // not. It also drops a 120 kB animation library from every page.
+    const marks = Array.from(document.querySelectorAll('[data-intro], [data-draw]'));
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Under reduced motion every mark is simply left drawn — that is already
+    // its rest state in CSS, so there is nothing to do.
+    if (marks.length && !still.matches) {
+      const DURATION = 0.8;
+      const EASE = 'cubic-bezier(0.65, 0, 0.35, 1)';
+
+      // Rendered length in screen pixels = path length in user units × the
+      // scale the SVG is displayed at. That product is the dash we need.
+      function dashLength(svg, path) {
+        const box = svg.getBoundingClientRect();
+        const viewBoxWidth = svg.viewBox.baseVal.width || box.width;
+        const scale = viewBoxWidth ? box.width / viewBoxWidth : 1;
+        return path.getTotalLength() * scale;
+      }
+
+      function measure(svg) {
+        svg.querySelectorAll('.ink').forEach((path) => {
+          const length = dashLength(svg, path);
+          path.style.strokeDasharray = String(length);
+          // A mark that has already been drawn keeps its offset at zero; only
+          // the dash needs updating, or a widened window would open a gap at
+          // the end of a stroke that was measured narrower.
+          if (path.dataset.drawn !== 'true') path.style.strokeDashoffset = String(length);
+        });
+      }
+
+      function draw(svg, delay) {
+        svg.querySelectorAll('.ink').forEach((path, i) => {
+          path.dataset.drawn = 'true';
+          path.style.transition = `stroke-dashoffset ${DURATION}s ${EASE} ${delay + i * 0.22}s`;
+          path.style.strokeDashoffset = '0';
+        });
+      }
+
+      marks.forEach(measure);
+
+      // Reading layout here flushes the starting values above, so the style
+      // change below is a genuine transition rather than a jump. Deliberately
+      // not requestAnimationFrame: a page opened in a background tab never
+      // gets a frame, and the marks would sit invisible until it was looked at.
+      document.body.getBoundingClientRect();
+
+      // Intro marks draw in the order a hand would make them, which is given
+      // by data-intro rather than by document order.
+      marks
+        .filter((mark) => mark.dataset.intro !== undefined)
+        .sort((a, b) => Number(a.dataset.intro) - Number(b.dataset.intro))
+        .forEach((mark, i) => draw(mark, 0.35 + i * 0.45));
+
+      const scrollMarks = marks.filter((mark) => mark.dataset.draw !== undefined);
+
+      if ('IntersectionObserver' in window) {
+        const seen = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              draw(entry.target, 0);
+              seen.unobserve(entry.target);
+            });
+          },
+          // Start the stroke a little before the rule reaches the fold.
+          { rootMargin: '0px 0px -8% 0px' }
+        );
+        scrollMarks.forEach((mark) => seen.observe(mark));
+      } else {
+        scrollMarks.forEach((mark) => draw(mark, 0));
+      }
+
+      // A resized window changes the scale, and therefore the dash. Marks that
+      // are already drawn get a fresh dash with the offset left at zero; marks
+      // still waiting are re-primed.
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => marks.forEach(measure), 150);
+      });
+    }
+  </script>
+</Base>
