@@ -389,6 +389,11 @@ a.entry:hover .entry__title {
   padding-block: var(--sp-xl) var(--sp-lg);
 }
 
+/* A page that opens straight into its prose rather than on a display title. */
+.page-head--quiet {
+  padding-block: var(--sp-xl) var(--sp-md);
+}
+
 .page-head__title {
   font-size: clamp(2.5rem, 6vw, 4.25rem);
   letter-spacing: -0.015em;

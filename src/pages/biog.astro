@@ -25,9 +25,11 @@ const works = [...books].sort((a, b) => Number(b.year) - Number(a.year));
   socialTitle="Biog"
   description="Ben Ware is a philosopher and social theorist based in London, Co-Director of the Centre for Philosophy and Art at King's College London."
 >
-  <div class="page-head">
-    <p class="label">Biog</p>
-    <h1 class="page-head__title">Ben Ware</h1>
+  <!-- No display title here: the client wants the page to open on the first
+       word of the biography itself. The small-caps marker carries the heading
+       role so the document still has an h1 to be outlined by. -->
+  <div class="page-head page-head--quiet">
+    <h1 class="label">Biog</h1>
   </div>
 
   <div class="biog">

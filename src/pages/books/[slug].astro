@@ -9,6 +9,7 @@ import Page from '../../layouts/Page.astro';
 import Flourish from '../../components/Flourish.astro';
 import BookCover from '../../components/BookCover.astro';
 import BuyBlock from '../../components/BuyBlock.astro';
+import QuoteCarousel from '../../components/QuoteCarousel.astro';
 import { books, splitTitle } from '../../data/books.js';
 import { u } from '../../lib/url.js';
 
@@ -34,11 +35,16 @@ export function getStaticPaths() {
 const { book, prev, next } = Astro.props;
 const t = splitTitle(book.title);
 
-// The lead is set large, so it wants the most quotable line rather than
-// whichever endorsement happens to be first — a 60-word paragraph at display
-// size becomes a wall. Shortest wins; the rest keep their given order below.
-const leadPraise = [...book.endorsements].sort((a, b) => a.quote.length - b.quote.length)[0];
-const restPraise = book.endorsements.filter((e) => e !== leadPraise);
+// The rotating quotes are set large, so they want the most quotable lines
+// rather than whichever endorsements happen to come first — a sixty-word
+// paragraph at display size is a wall, not a pull quote. Take the five
+// shortest, then put them back into the order they were given in. The full set
+// is still on the page, under the disclosure below.
+const ROTATING = 5;
+const shortest = new Set(
+  [...book.endorsements].sort((a, b) => a.quote.length - b.quote.length).slice(0, ROTATING)
+);
+const rotating = book.endorsements.filter((e) => shortest.has(e));
 const forthcoming = Number(book.year) > new Date().getFullYear();
 
 const origin = Astro.site ?? 'http://localhost:4321';
@@ -122,15 +128,16 @@ const schema = {
         <section class="section praise" aria-labelledby="h-praise">
           <h2 class="label" id="h-praise">Praise</h2>
 
-          <blockquote class="praise__lead">
-            <p>{leadPraise.quote}</p>
-            <cite set:html={leadPraise.source} />
-          </blockquote>
+          <QuoteCarousel
+            quotes={rotating}
+            interval={7000}
+            label={`Praise for ${book.shortTitle}`}
+          />
 
-          {restPraise.length > 0 && (
+          {book.endorsements.length > rotating.length && (
             <div class="praise__rest">
               <div id={`more-praise-${book.slug}`} class="praise__list" hidden>
-                {restPraise.map((e) => (
+                {book.endorsements.map((e) => (
                   <blockquote class="praise__item">
                     <p>{e.quote}</p>
                     <cite set:html={e.source} />
@@ -143,9 +150,10 @@ const schema = {
                 aria-expanded="false"
                 aria-controls={`more-praise-${book.slug}`}
                 data-praise-toggle
-                data-count={restPraise.length}
+                data-count={book.endorsements.length}
+                data-label-closed={`Read all ${book.endorsements.length} endorsements ↓`}
               >
-                {`Read ${restPraise.length} more ↓`}
+                {`Read all ${book.endorsements.length} endorsements ↓`}
               </button>
             </div>
           )}
@@ -247,31 +255,6 @@ const schema = {
      Praise
   ------------------------------------------------------------------ */
 
-  .praise__lead {
-    margin: 0;
-  }
-
-  /* The measure belongs to the quote, not to the block — an attribution held
-     to 30ch breaks a book title across two lines. */
-  .praise__lead p {
-    margin: 0;
-    max-width: 30ch;
-    font-family: var(--display);
-    font-style: italic;
-    font-size: clamp(1.35rem, 2.4vw, 1.85rem);
-    line-height: 1.35;
-  }
-
-  .praise__lead p::before {
-    content: '\201C';
-    margin-left: -0.4em;
-  }
-
-  .praise__lead p::after {
-    content: '\201D';
-  }
-
-  .praise__lead cite,
   .praise__item cite {
     display: block;
     max-width: 52ch;
@@ -283,7 +266,6 @@ const schema = {
     color: var(--ink-60);
   }
 
-  .praise__lead cite :global(em),
   .praise__item cite :global(em) {
     font-style: italic;
     text-transform: none;
@@ -395,12 +377,12 @@ const schema = {
   // Plain-JS disclosure for the remaining endorsements.
   document.querySelectorAll('[data-praise-toggle]').forEach((button) => {
     const list = document.getElementById(button.getAttribute('aria-controls'));
-    const count = button.dataset.count;
+    const closed = button.dataset.labelClosed;
     button.addEventListener('click', () => {
       const expanded = button.getAttribute('aria-expanded') === 'true';
       list.hidden = expanded;
       button.setAttribute('aria-expanded', String(!expanded));
-      button.textContent = expanded ? `Read ${count} more ↓` : 'Show less ↑';
+      button.textContent = expanded ? closed : 'Show less ↑';
     });
   });
 </script>

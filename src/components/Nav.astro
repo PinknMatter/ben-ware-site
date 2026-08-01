@@ -31,7 +31,10 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
       }
     </nav>
   </div>
-  <div class="measure"><hr class="hair" /></div>
+  <!-- Outside the measure on purpose: on a wide screen a rule that stops at
+       the text column reads as an underline for the nav rather than as the
+       edge of the running head. -->
+  <hr class="hair" />
 </header>
 
 <style>
@@ -51,6 +54,15 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
     text-transform: uppercase;
   }
 
+  /* Every link reserves the rule whether or not it is the current page —
+     otherwise marking the current one makes that link taller, which grows the
+     header row and shifts the rule beneath it down by a couple of pixels from
+     page to page. */
+  .head__nav a {
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+  }
+
   .head__nav {
     display: flex;
     gap: clamp(1rem, 3vw, 2.25rem);
@@ -60,8 +72,7 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
      coloured, just held down by a rule. */
   .head__nav a[aria-current='page'] {
     color: var(--ink);
-    border-bottom: 1px solid var(--ink);
-    padding-bottom: 2px;
+    border-bottom-color: var(--ink);
   }
 
   @media (max-width: 30rem) {

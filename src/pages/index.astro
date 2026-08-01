@@ -291,6 +291,7 @@ const schema = {
   ------------------------------------------------------------------ */
 
   .lead {
+    --cover-h: clamp(11rem, 22vw, 17rem);
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: clamp(1.5rem, 4vw, 3rem);
@@ -298,13 +299,23 @@ const schema = {
   }
 
   .lead__cover {
-    --cover-h: clamp(11rem, 22vw, 17rem);
     display: block;
     width: clamp(7.5rem, 15vw, 11.5rem);
   }
 
+  /* The column is held to at least the height of the jacket so "Read more"
+     can be pushed to its foot — the link then sits on the same line the book
+     stands on rather than floating halfway up it. */
   .lead__text {
+    display: flex;
+    flex-direction: column;
     max-width: 46ch;
+    min-height: var(--cover-h);
+  }
+
+  .lead__text .more {
+    margin-top: auto;
+    padding-top: var(--sp-md);
   }
 
   .lead__title {
