@@ -20,6 +20,8 @@
 // putting furniture on the page. With JavaScript off, or reduced motion asked
 // for, the first quote simply stands.
 
+import CarouselDots from './CarouselDots.astro';
+
 interface Props {
   quotes: { quote: string; source: string }[];
   /** Milliseconds each quote is held. */
@@ -27,38 +29,38 @@ interface Props {
   label?: string;
   /** display = large italic, for the hero and the praise block. */
   tone?: 'display' | 'plain';
+  /** Ties this carousel to a <CarouselDots> placed elsewhere on the page. */
+  name?: string;
+  /** Set false when the dials are rendered by the page instead. */
+  dots?: boolean;
 }
 
-const { quotes, interval = 6000, label = 'Praise', tone = 'display' } = Astro.props;
+const {
+  quotes,
+  interval = 6000,
+  label = 'Praise',
+  tone = 'display',
+  name,
+  dots = true,
+} = Astro.props;
 ---
 
 <div
   class={`carousel carousel--${tone}`}
   data-carousel
+  data-name={name}
   data-interval={interval}
   role="group"
   aria-roledescription="carousel"
   aria-label={label}
 >
-  <!-- The dials sit at the top right of the block, above the quote. -->
-  <div class="carousel__head">
-    <ul class="carousel__dots">
-      {
-        quotes.map((q, i) => (
-          <li>
-            <button
-              type="button"
-              class="carousel__dot"
-              data-dot
-              aria-current={i === 0 ? 'true' : undefined}
-            >
-              <span class="vh">{`Endorsement ${i + 1} of ${quotes.length}`}</span>
-            </button>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+  {
+    dots && (
+      <div class="carousel__head">
+        <CarouselDots name={name} quotes={quotes} />
+      </div>
+    )
+  }
 
   <div class="carousel__stage">
     {
@@ -210,50 +212,6 @@ const { quotes, interval = 6000, label = 'Praise', tone = 'display' } = Astro.pr
     letter-spacing: 0.06em;
   }
 
-  .carousel__dots {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  /* Short pen strokes rather than bullets, to stay in the same hand as the
-     drawn rules. The button keeps a comfortable target around a 1px mark. */
-  .carousel__dot {
-    display: block;
-    width: 1.35rem;
-    height: 1.5rem;
-    padding: 0;
-    border: 0;
-    background: none;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .carousel__dot::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 1.35rem;
-    height: 1px;
-    background: var(--ink-25);
-    transition:
-      background-color var(--dur) var(--ease),
-      height var(--dur) var(--ease);
-  }
-
-  .carousel__dot:hover::before {
-    background: var(--ink-60);
-  }
-
-  .carousel__dot[aria-current]::before {
-    background: var(--ink);
-    height: 2px;
-  }
-
   /* Present for a keyboard, absent for the eye — the same bargain a skip link
      makes. */
   .carousel__pause {
@@ -312,7 +270,12 @@ const { quotes, interval = 6000, label = 'Praise', tone = 'display' } = Astro.pr
 <script>
   document.querySelectorAll('[data-carousel]').forEach((root) => {
     const slides = Array.from(root.querySelectorAll('[data-slide]'));
-    const dots = Array.from(root.querySelectorAll('[data-dot]'));
+    // Dials may live inside the carousel or anywhere else on the page, tied
+    // back to it by name — the homepage puts them on the book's subtitle line.
+    const name = root.dataset.name;
+    const dots = Array.from(root.querySelectorAll('[data-dot]')).concat(
+      name ? Array.from(document.querySelectorAll(`[data-dots-for="${name}"] [data-dot]`)) : []
+    );
     const pauseBtn = root.querySelector('[data-pause]');
     const pauseLabel = root.querySelector('[data-pause-label]');
     if (slides.length < 2) return;

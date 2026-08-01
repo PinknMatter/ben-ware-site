@@ -10,6 +10,7 @@ import Flourish from '../../components/Flourish.astro';
 import BookCover from '../../components/BookCover.astro';
 import BuyBlock from '../../components/BuyBlock.astro';
 import QuoteCarousel from '../../components/QuoteCarousel.astro';
+import CarouselDots from '../../components/CarouselDots.astro';
 import { books, splitTitle } from '../../data/books.js';
 import { u } from '../../lib/url.js';
 
@@ -115,52 +116,64 @@ const schema = {
 
   <section class="section" aria-labelledby="h-about">
     <h2 class="label" id="h-about">About the book</h2>
-    <div class="prose prose--opening">
-      <p>{book.blurb}</p>
-    </div>
-  </section>
 
-  {
-    book.endorsements.length > 0 && (
-      <>
-        <Flourish hand={2} />
-
-        <section class="section praise" aria-labelledby="h-praise">
-          <h2 class="label" id="h-praise">Praise</h2>
-
-          <QuoteCarousel
-            quotes={rotating}
-            interval={7000}
-            label={`Praise for ${book.shortTitle}`}
-          />
-
-          {book.endorsements.length > rotating.length && (
-            <div class="praise__rest">
-              <div id={`more-praise-${book.slug}`} class="praise__list" hidden>
-                {book.endorsements.map((e) => (
-                  <blockquote class="praise__item">
-                    <p>{e.quote}</p>
-                    <cite set:html={e.source} />
-                  </blockquote>
-                ))}
-              </div>
-              <button
-                class="praise__toggle"
-                type="button"
-                aria-expanded="false"
-                aria-controls={`more-praise-${book.slug}`}
-                data-praise-toggle
-                data-count={book.endorsements.length}
-                data-label-closed={`Read all ${book.endorsements.length} endorsements ↓`}
-              >
-                {`Read all ${book.endorsements.length} endorsements ↓`}
-              </button>
+    <!-- The praise is floated into the description rather than stacked under
+         it, so the paragraph runs around it the way a magazine sets a pull
+         quote. A plain float is all this needs — CSS Shapes (shape-outside)
+         only earns its keep when the text has to follow a non-rectangular
+         edge, and a rectangle is the right shape here. The float comes first
+         in the source because a float only affects the lines that follow it. -->
+    <div class="about">
+      {
+        book.endorsements.length > 0 && (
+          <aside class="about__praise" aria-labelledby="h-praise">
+            <div class="about__praise-head">
+              <h3 class="label" id="h-praise">
+                Praise
+              </h3>
+              <CarouselDots name={`praise-${book.slug}`} quotes={rotating} />
             </div>
-          )}
-        </section>
-      </>
-    )
-  }
+            <QuoteCarousel
+              quotes={rotating}
+              name={`praise-${book.slug}`}
+              dots={false}
+              interval={7000}
+              label={`Praise for ${book.shortTitle}`}
+            />
+          </aside>
+        )
+      }
+
+      <div class="prose prose--opening">
+        <p>{book.blurb}</p>
+      </div>
+    </div>
+
+    {
+      book.endorsements.length > rotating.length && (
+        <div class="praise__rest">
+          <div id={`more-praise-${book.slug}`} class="praise__list" hidden>
+            {book.endorsements.map((e) => (
+              <blockquote class="praise__item">
+                <p>{e.quote}</p>
+                <cite set:html={e.source} />
+              </blockquote>
+            ))}
+          </div>
+          <button
+            class="praise__toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls={`more-praise-${book.slug}`}
+            data-praise-toggle
+            data-label-closed={`Read all ${book.endorsements.length} endorsements ↓`}
+          >
+            {`Read all ${book.endorsements.length} endorsements ↓`}
+          </button>
+        </div>
+      )
+    }
+  </section>
 
   <!-- Turning the leaf: the neighbouring works, in catalogue order. -->
   <nav class="turn" aria-label="Other books">
@@ -240,8 +253,40 @@ const schema = {
   }
 
   /* ------------------------------------------------------------------
-     Description — opened with a drop capital, as a chapter is
+     Description — opened with a drop capital, as a chapter is, with the
+     praise floated into the right-hand side of it.
   ------------------------------------------------------------------ */
+
+  /* flow-root so the float is contained by the section instead of hanging
+     into whatever follows. */
+  .about {
+    display: flow-root;
+  }
+
+  .about__praise {
+    float: right;
+    width: min(23rem, 44%);
+    margin: 0.4rem 0 var(--sp-md) clamp(1.5rem, 4vw, 3.5rem);
+  }
+
+  /* Label and dials on one line, as on the homepage. */
+  .about__praise-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-md);
+    margin-bottom: 0.4rem;
+  }
+
+  .about__praise :global(.carousel) {
+    margin-top: 0;
+  }
+
+  /* The float already sets the measure of the wrapped text; capping the prose
+     as well would leave it a narrow ribbon. */
+  .about .prose {
+    max-width: none;
+  }
 
   .prose--opening > p:first-of-type::first-letter {
     float: left;
@@ -273,7 +318,8 @@ const schema = {
   }
 
   .praise__rest {
-    margin-top: var(--sp-lg);
+    clear: both;
+    margin-top: var(--sp-xl);
   }
 
   .praise__list {
@@ -336,6 +382,13 @@ const schema = {
 
     .praise__list {
       columns: 1;
+    }
+
+    /* Too narrow to wrap around: the praise goes back above the description. */
+    .about__praise {
+      float: none;
+      width: auto;
+      margin: 0 0 var(--sp-lg);
     }
   }
 

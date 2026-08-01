@@ -21,27 +21,46 @@ const rows = book.buy ?? [];
 const amazon = rows.find((row) => row.label === 'Amazon' && row.url);
 const primary = amazon ?? rows.find((row) => row.url) ?? null;
 const rest = rows.filter((row) => row !== primary);
+
+// The publisher sits beside the button; anything else — a translation, a
+// listing still to be confirmed — goes underneath.
+const beside = rest.find((row) => row.label === 'Publisher') ?? null;
+const below = rest.filter((row) => row !== beside);
 ---
 
 <div class={`buy ${className}`.trim()}>
-  {
-    primary && (
-      <a
-        class="buy__button"
-        href={primary.url}
-        target="_blank"
-        rel="noopener"
-        aria-label={`Buy ${book.shortTitle} from ${primary.label}`}
-      >
-        Buy
-      </a>
-    )
-  }
+  <div class="buy__primary">
+    {
+      primary && (
+        <a
+          class="buy__button"
+          href={primary.url}
+          target="_blank"
+          rel="noopener"
+          aria-label={`Buy ${book.shortTitle} from ${primary.label}`}
+        >
+          Buy
+        </a>
+      )
+    }
+    {
+      beside &&
+        (beside.url ? (
+          <a class="buy__aside ext" href={beside.url} target="_blank" rel="noopener">
+            {beside.label}
+          </a>
+        ) : (
+          <span class="buy__aside buy__aside--pending" data-todo={beside.todo}>
+            {beside.label}
+          </span>
+        ))
+    }
+  </div>
 
   {
-    rest.length > 0 && (
+    below.length > 0 && (
       <ul class="buy__list">
-        {rest.map((row) =>
+        {below.map((row) =>
           row.url ? (
             <li>
               <a class="buy__row" href={row.url} target="_blank" rel="noopener">
@@ -69,11 +88,20 @@ const rest = rows.filter((row) => row !== primary);
     max-width: 22rem;
   }
 
+  /* Button and publisher on one line; in a column too narrow for both — the
+     jacket column on the catalogue — the publisher wraps under it. */
+  .buy__primary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+  }
+
   /* Solid ink on paper — the one stamped element on the site, so it reads as
      the single thing to press without borrowing a colour from anywhere. */
   .buy__button {
     display: block;
-    width: 100%;
+    flex: 1 1 9rem;
     padding: 0.85rem 1.25rem;
     background: var(--ink);
     color: var(--paper);
@@ -98,15 +126,34 @@ const rest = rows.filter((row) => row !== primary);
     outline-offset: 4px;
   }
 
-  .buy__list {
-    list-style: none;
-    margin: var(--sp-md) 0 0;
-    padding: 0;
-    border-top: 1px solid var(--ink-18);
+  .buy__aside {
+    flex: none;
+    font-size: 0.9375rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--ink-25);
+    padding-bottom: 1px;
+    transition:
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
   }
 
-  .buy__list > li {
-    border-bottom: 1px solid var(--ink-18);
+  .buy__aside:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .buy__aside--pending {
+    color: var(--ink-40);
+    border-bottom-style: dotted;
+  }
+
+  /* No rules in here: the client did not want the remaining links fenced off
+     from the button by hairlines. */
+  .buy__list {
+    list-style: none;
+    margin: var(--sp-sm) 0 0;
+    padding: 0;
   }
 
   /* In the narrow column beside a jacket there is not room for a label and its
@@ -118,13 +165,28 @@ const rest = rows.filter((row) => row !== primary);
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.15rem var(--sp-md);
-    padding-block: 0.7rem;
+    padding-block: 0.45rem;
   }
 
   .buy__label {
     font-size: 0.9375rem;
     letter-spacing: 0.02em;
     white-space: nowrap;
+  }
+
+  /* Without the hairline rows these need their own underline to read as
+     links. */
+  a.buy__row .buy__label {
+    border-bottom: 1px solid var(--ink-25);
+    padding-bottom: 1px;
+    transition:
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+
+  a.buy__row:hover .buy__label {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
   }
 
   .buy__note {

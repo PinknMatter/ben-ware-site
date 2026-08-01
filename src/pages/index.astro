@@ -14,6 +14,7 @@ import Flourish from '../components/Flourish.astro';
 import Signature from '../components/Signature.astro';
 import BookCover from '../components/BookCover.astro';
 import QuoteCarousel from '../components/QuoteCarousel.astro';
+import CarouselDots from '../components/CarouselDots.astro';
 import { books, booksByYear, splitTitle } from '../data/books.js';
 import { writing, interviews, videos } from '../data/writing.js';
 import { site, affiliations, representation } from '../data/site.js';
@@ -116,15 +117,26 @@ const schema = {
       </a>
       <div class="lead__text">
         <p class="label">{lead.publisher} — {lead.year}</p>
-        <h3 class="lead__title">
-          <a href={u(`/books/${lead.slug}`)}>
-            {leadTitle.main}{leadTitle.sub && <span class="lead__sub">{leadTitle.sub}</span>}
-          </a>
-        </h3>
+
+        <!-- The dials belong to the carousel below, but they are set here so
+             they sit on the subtitle's line. QuoteCarousel finds them by name. -->
+        <div class="lead__titling">
+          <h3 class="lead__title">
+            <a href={u(`/books/${lead.slug}`)}>
+              {leadTitle.main}{leadTitle.sub && <span class="lead__sub">{leadTitle.sub}</span>}
+            </a>
+          </h3>
+          <CarouselDots name="lead-praise" quotes={lead.praiseShort} class="lead__dots" />
+        </div>
 
         <!-- The client asked for the description under this title to become a
              rotating set of endorsements. -->
-        <QuoteCarousel quotes={lead.praiseShort} label={`Praise for ${lead.shortTitle}`} />
+        <QuoteCarousel
+          quotes={lead.praiseShort}
+          name="lead-praise"
+          dots={false}
+          label={`Praise for ${lead.shortTitle}`}
+        />
 
         <p class="more">
           <a class="link link--sm" href={u(`/books/${lead.slug}`)}>Read more</a>
@@ -291,31 +303,62 @@ const schema = {
   ------------------------------------------------------------------ */
 
   .lead {
-    --cover-h: clamp(11rem, 22vw, 17rem);
+    /* Sized so the jacket is the taller of the two columns: the row bottom is
+       then the bottom of the book, and "Read more" lands exactly on it. The
+       floor matters as much as the ceiling — a jacket that shrank with the
+       viewport left the link hanging below it on middling screens. */
+    --cover-h: clamp(15rem, 26vw, 19.5rem);
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: clamp(1.5rem, 4vw, 3rem);
-    align-items: start;
+    /* Both columns fill the row, so the text column is exactly as tall as the
+       jacket beside it. */
+    align-items: stretch;
   }
 
   .lead__cover {
     display: block;
-    width: clamp(7.5rem, 15vw, 11.5rem);
+    /* Wide enough that the jacket fills its box at its own proportions rather
+       than letterboxing inside it. */
+    width: clamp(10rem, 17vw, 12.5rem);
   }
 
-  /* The column is held to at least the height of the jacket so "Read more"
-     can be pushed to its foot — the link then sits on the same line the book
-     stands on rather than floating halfway up it. */
+  /* A flex column whose last child is pushed to the foot: "Read more" then
+     sits on the line the book stands on rather than floating halfway up it.
+     The jacket is sized to be the taller of the two, so the row bottom and
+     the bottom of the book are the same line. */
   .lead__text {
     display: flex;
     flex-direction: column;
     max-width: 46ch;
-    min-height: var(--cover-h);
+  }
+
+  /* The dials took the place of the carousel's own head row, so the quote can
+     sit closer under the title. */
+  .lead__text :global(.carousel) {
+    margin-top: var(--sp-sm);
   }
 
   .lead__text .more {
     margin-top: auto;
     padding-top: var(--sp-md);
+  }
+
+  /* flex-end puts the dials on the bottom line of the title block, which is
+     the subtitle — so they read as sitting on the same line as "Beginning
+     Again at the End" however many lines the title above it runs to. */
+  .lead__titling {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--sp-md);
+  }
+
+  .lead__dots {
+    flex: none;
+    /* Nudged so the strokes land on the subtitle's baseline rather than on
+       the bottom of its descenders. */
+    margin-bottom: 0.28em;
   }
 
   .lead__title {

@@ -76,7 +76,11 @@ const schema = {
   {
     groups.map((group, gi) => (
       <section class="group" aria-labelledby={`group-${gi}`}>
-        <Flourish hand={gi} />
+        {/* One rule only, under the contents shelf. The second group is
+            separated by its own heading and the space above it — a drawn rule
+            between the authored books and the edited ones read as a break in
+            the middle of the catalogue. */}
+        {gi === 0 && <Flourish hand={0} />}
         <h2 class="label group__label" id={`group-${gi}`}>
           {group.label}
         </h2>
@@ -188,6 +192,11 @@ const schema = {
 
   .group__label {
     margin-bottom: var(--sp-lg);
+  }
+
+  /* The second group carries its own space instead of a rule. */
+  .group + .group .group__label {
+    padding-top: var(--sp-lg);
   }
 
   .work {
