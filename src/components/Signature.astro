@@ -1,11 +1,35 @@
 ---
-// The signature under the title block.
+// The signature under the title block — Ben's own hand.
 //
-// Ben has redrawn the BW monogram in his own hand and is sending a scan. Set
-// `signature.src` (and its pixel dimensions) in src/data/site.js and every use
-// of this component switches to the real autograph. Until then it renders the
-// drawn stand-in below, which is NOT Ben's handwriting — it is a placeholder in
-// his style, and is marked data-todo="signature-scan" so it can be found.
+// HOW THIS IS BUILT, because it is not the obvious thing.
+//
+// The mark is drawn as the OUTLINE of the ink, filled — not as a stroked line.
+// That is what preserves the pen: the real signature swells and thins as the
+// nib changes speed and pressure (14 to 30 units wide across this mark), and a
+// uniform stroke throws all of that away and reads as wire.
+//
+// A filled outline cannot be animated with stroke-dashoffset, though — there is
+// no line to draw. So the fill is revealed through a mask containing the
+// CENTRELINE of each stroke, drawn thick enough to cover the ink. Animating the
+// dash on those mask strokes sweeps the reveal along the path the pen actually
+// travelled, and the ink appears at its true varying width as it goes.
+//
+// Both halves come from the photograph Ben sent (Assets/WhatsApp Image
+// 2026-07-29…): thresholded to ink, the boundary traced for the outline and the
+// same ink skeletonised for the centrelines.
+//
+// The six reveal paths are the signature in writing order, and the engine in
+// Page.astro strokes them 0.22s apart — so path order IS the order the hand
+// moves. Reordering them reorders the writing.
+//
+// The reveal strokes are ORDINARY strokes, not the vector-effect:
+// non-scaling-stroke the rest of the site's marks use, because the mask has to
+// stay locked to the ink at any size. Page.astro measures the dash in whichever
+// unit the stroke is actually drawn in.
+//
+// signature.src in src/data/site.js still switches this to an <img> for a
+// flatbed scan, if one ever supersedes the photo — but a raster signature is a
+// flat image and does NOT animate.
 import { signature } from '../data/site.js';
 import { u } from '../lib/url.js';
 
@@ -14,6 +38,21 @@ interface Props {
 }
 
 const { class: className = '', ...rest } = Astro.props;
+
+// The ink itself: one path, even-odd so the loops stay open.
+const ink =
+  'M101.5,592.0 87.5,592.0 74.5,584.0 71.0,579.5 67.0,569.5 69.0,560.5 66.5,558.0 58.0,570.5 51.5,577.0 48.5,577.0 43.5,582.0 30.5,582.0 26.5,580.0 18.0,569.5 12.0,556.5 8.0,524.5 12.0,432.5 14.0,425.5 14.0,415.5 16.0,410.5 16.0,401.5 19.0,393.5 20.0,378.5 22.0,374.5 21.0,371.5 25.0,358.5 27.0,343.5 30.0,336.5 42.0,287.5 45.0,282.5 51.0,260.5 62.0,234.5 65.0,217.5 64.0,200.5 67.0,191.5 62.0,187.5 62.0,185.5 67.0,182.5 66.0,177.5 68.0,174.5 79.0,167.5 83.0,151.5 86.0,145.5 86.0,141.5 94.0,121.5 94.0,117.5 97.0,112.5 99.0,102.5 104.0,93.5 106.0,85.5 120.0,54.5 123.0,42.5 126.0,38.5 130.0,27.5 141.5,11.0 150.5,8.0 161.0,16.5 171.0,29.5 170.0,34.5 173.0,47.5 173.0,57.5 171.5,60.0 170.5,59.0 168.0,61.5 169.0,81.5 165.0,110.5 168.0,113.5 169.0,118.5 158.0,159.5 155.0,179.5 149.0,201.5 150.0,202.5 147.0,208.5 147.0,214.5 141.0,241.5 138.0,248.5 137.0,257.5 126.0,290.5 125.0,300.5 117.0,322.5 113.0,342.5 109.0,350.5 107.0,365.5 108.0,368.5 116.5,377.0 122.5,377.0 128.5,383.0 145.5,393.0 150.0,390.5 206.0,306.5 219.0,279.5 220.0,274.5 227.0,265.5 233.0,250.5 244.0,231.5 257.0,203.5 264.5,194.0 279.5,183.0 284.5,184.0 294.0,192.5 298.0,201.5 303.0,223.5 302.0,230.5 299.5,230.0 297.0,232.5 300.0,249.5 297.0,271.5 299.5,274.0 302.5,270.0 304.0,274.5 301.0,330.5 302.0,333.5 296.0,379.5 296.0,386.5 298.5,389.0 303.0,384.5 314.0,364.5 326.0,351.5 336.5,342.0 342.5,342.0 347.0,344.5 366.0,385.5 374.0,393.5 374.0,396.5 391.5,410.0 402.5,410.0 413.5,405.0 418.0,400.5 414.0,397.5 415.5,394.0 420.5,392.0 423.5,395.0 425.5,395.0 434.5,386.0 439.5,384.0 456.5,366.0 467.5,358.0 470.5,354.0 486.5,344.0 505.5,338.0 528.5,339.0 537.5,342.0 555.5,339.0 573.5,329.0 585.5,319.0 599.5,311.0 605.5,310.0 606.0,313.5 589.5,332.0 572.5,346.0 563.5,351.0 544.5,356.0 522.5,352.0 506.5,352.0 503.5,354.0 493.5,356.0 483.5,363.0 474.5,372.0 472.5,372.0 452.5,392.0 429.5,411.0 424.5,413.0 420.5,418.0 413.5,422.0 400.5,426.0 389.5,426.0 379.5,422.0 366.0,410.5 348.0,385.5 341.0,365.5 337.5,362.0 327.5,370.0 308.0,391.5 297.0,411.5 296.0,420.5 292.0,427.5 288.0,441.5 283.5,447.0 278.5,447.0 274.0,439.5 274.0,430.5 279.0,420.5 281.0,406.5 284.0,375.5 285.0,343.5 288.0,323.5 288.0,305.5 291.0,292.5 291.0,237.5 284.0,202.5 278.5,198.0 271.0,204.5 271.0,207.5 262.0,218.5 259.0,226.5 246.0,249.5 240.0,265.5 233.0,274.5 232.0,281.5 227.0,287.5 225.0,295.5 220.0,305.5 212.0,314.5 203.0,332.5 194.0,343.5 191.0,350.5 185.0,357.5 182.0,364.5 174.0,374.5 157.0,401.5 170.0,415.5 180.0,433.5 189.0,462.5 189.0,489.5 183.0,513.5 178.0,526.5 163.0,553.5 143.5,572.0 126.5,584.0 121.5,585.0 113.5,590.0 104.5,590.0 101.5,592.0Z M83.0,496.5 87.0,491.5 88.0,485.5 92.0,477.5 102.0,464.5 104.0,458.5 110.0,452.5 128.0,422.5 139.0,409.5 139.0,405.5 136.5,403.0 132.5,402.0 125.5,396.0 107.5,388.0 100.0,382.5 93.0,368.5 93.0,353.5 97.0,335.5 99.0,333.5 99.0,329.5 102.0,323.5 102.0,317.5 105.0,313.5 109.0,292.5 120.0,260.5 120.0,253.5 124.0,245.5 127.0,233.5 127.0,226.5 130.0,219.5 130.0,210.5 137.0,185.5 141.0,162.5 149.0,138.5 149.0,132.5 158.0,100.5 160.0,65.5 157.0,60.5 158.0,55.5 155.0,40.5 151.0,32.5 147.5,29.0 140.0,41.5 137.0,51.5 131.0,63.5 128.0,66.5 128.0,71.5 118.0,92.5 117.0,98.5 113.0,104.5 101.0,146.5 95.0,161.5 92.0,180.5 90.0,183.5 90.0,190.5 86.0,199.5 85.0,209.5 83.0,213.5 87.0,234.5 87.0,254.5 85.0,261.5 88.0,264.5 86.0,268.5 88.0,274.5 87.0,277.5 85.5,280.0 82.5,279.0 79.0,283.5 80.0,305.5 83.0,316.5 83.0,341.5 85.0,364.5 85.0,451.5 84.0,469.5 80.0,494.5 83.0,496.5Z M38.0,567.5 40.5,567.0 50.0,556.5 54.0,546.5 55.0,539.5 59.0,534.5 68.0,479.5 69.0,421.5 71.0,401.5 71.0,361.5 68.0,350.5 68.0,322.5 66.0,316.5 66.0,292.5 64.0,281.5 65.0,277.5 62.5,275.0 60.0,277.5 55.0,292.5 55.0,297.5 52.0,302.5 47.0,325.5 40.0,344.5 39.0,356.5 36.0,362.5 24.0,448.5 23.0,474.5 21.0,483.5 22.0,498.5 19.0,504.5 19.0,512.5 24.0,532.5 26.0,552.5 30.0,561.5 36.5,568.0 38.0,567.5Z M98.0,575.5 104.5,575.0 123.5,567.0 146.0,547.5 146.0,545.5 152.0,539.5 152.0,534.5 150.0,530.5 154.5,532.0 159.0,526.5 166.0,511.5 165.0,503.5 171.0,497.5 173.0,480.5 171.0,454.5 168.0,448.5 166.0,438.5 161.0,433.5 156.0,422.5 148.5,415.0 142.0,420.5 130.0,438.5 126.0,446.5 126.0,449.5 118.0,457.5 116.0,463.5 104.0,479.5 92.0,506.5 84.0,546.5 83.0,562.5 85.0,570.5 89.5,575.0 98.0,575.5Z';
+
+// The centreline, in the order the hand makes it. Sequenced with
+// tools/signature-order.html — see tools/README.md.
+//
+// It is ONE path because it is one movement: the pen goes down without lifting,
+// from the inner stem, round the foot, up the left wall, over the top and back
+// down, into the bowl, up the long diagonal into the W and away on the
+// flourish. Split it and the site inserts a pause at the seam.
+const reveal = [
+  'M75.5,186.5C75.0,204.3 72.3,258.9 72.6,293.4C73.0,327.9 77.3,354.6 77.5,393.5C77.7,432.3 74.9,502.8 73.8,526.7C72.7,550.6 73.1,532.3 70.8,537.0C68.5,541.7 64.5,549.6 60.1,554.9C55.7,560.2 48.5,566.2 44.4,568.8C40.3,571.3 38.4,570.5 35.6,570.0C32.8,569.5 30.1,568.8 27.5,565.8C24.9,562.8 21.7,557.1 19.8,552.0C18.0,547.0 17.2,543.1 16.2,535.5C15.2,527.9 13.4,524.1 13.9,506.7C14.5,489.3 16.5,455.8 19.4,431.0C22.2,406.2 26.0,381.7 31.1,357.8C36.1,333.9 43.2,305.3 49.9,287.6C56.5,269.9 66.6,267.1 71.1,251.8C75.5,236.5 71.3,218.3 76.5,195.8C81.7,173.2 93.2,141.7 102.3,116.4C111.4,91.2 125.5,57.9 131.1,44.3C136.8,30.7 134.3,37.4 136.4,34.7C138.4,32.0 140.9,29.4 143.3,28.1C145.7,26.8 149.0,26.9 150.8,27.0C152.6,27.1 152.5,26.3 154.3,28.7C156.1,31.0 160.1,35.4 161.6,41.2C163.2,46.9 163.6,52.9 163.6,63.3C163.6,73.6 162.7,92.0 161.6,103.4C160.6,114.8 161.9,109.5 157.2,131.6C152.6,153.6 142.6,200.5 133.7,235.8C124.8,271.2 109.1,322.8 103.8,343.5C98.5,364.2 101.8,355.4 101.9,359.8C102.0,364.1 102.9,366.7 104.3,369.8C105.7,372.8 102.5,372.0 110.3,378.1C118.0,384.3 141.1,398.3 150.7,406.7C160.3,415.1 163.2,420.5 167.6,428.4C172.1,436.4 175.5,447.2 177.5,454.4C179.5,461.5 179.5,465.6 179.7,471.3C180.0,477.0 180.0,482.0 179.1,488.5C178.1,495.1 176.2,503.4 173.9,510.4C171.6,517.5 170.0,522.8 165.2,530.8C160.4,538.8 151.5,551.3 145.2,558.3C138.8,565.2 132.6,568.8 127.1,572.4C121.5,575.9 117.1,577.8 111.9,579.3C106.8,580.8 100.2,581.5 95.9,581.3C91.7,581.1 89.5,580.5 86.4,578.0C83.4,575.5 79.7,570.9 77.6,566.3C75.4,561.7 74.3,556.7 73.6,550.4C72.9,544.1 72.6,534.8 73.5,528.5C74.4,522.3 73.4,523.5 79.0,513.0C84.6,502.5 85.9,498.6 107.1,465.6C128.4,432.5 181.4,356.3 206.5,314.7C231.6,273.1 246.9,235.1 257.7,215.8C268.5,196.6 267.8,202.5 271.4,199.3C275.0,196.2 276.8,197.0 279.3,197.2C281.8,197.4 284.4,198.6 286.3,200.6C288.3,202.6 289.9,205.0 291.1,209.1C292.3,213.3 293.0,208.6 293.7,225.7C294.4,242.9 296.0,282.2 295.2,312.0C294.3,341.9 290.8,384.6 288.6,404.8C286.5,425.0 282.3,432.3 282.3,433.2C282.3,434.1 286.4,416.3 288.8,410.2C291.2,404.1 291.6,403.0 296.5,396.6C301.4,390.1 312.4,377.2 318.1,371.3C323.9,365.4 327.3,363.1 330.8,361.3C334.3,359.4 336.6,359.8 339.1,360.4C341.7,361.0 342.1,359.3 346.1,364.7C350.0,370.1 357.6,385.3 363.0,392.6C368.4,400.0 373.4,405.1 378.5,408.8C383.5,412.5 389.1,414.0 393.3,414.9C397.5,415.9 398.9,416.1 403.8,414.5C408.8,412.9 411.2,414.1 423.1,405.2C435.0,396.2 464.4,369.6 475.5,360.8C486.6,351.9 484.8,354.1 489.8,351.8C494.9,349.5 496.5,347.8 505.8,346.9C515.1,346.0 537.1,346.9 545.5,346.4C553.9,346.0 551.2,346.3 556.2,344.2C561.3,342.0 568.2,339.0 575.9,333.8C583.6,328.5 598.1,316.0 602.5,312.5',
+];
 ---
 
 {
@@ -28,30 +67,13 @@ const { class: className = '', ...rest } = Astro.props;
       {...rest}
     />
   ) : (
-    /* Initialled BW, the way a signature is abbreviated: the looped B, the W,
-       then the paraph thrown back underneath. Three strokes in the order a
-       hand makes them; the slant is carried by the skew rather than baked
-       into every coordinate. */
-    <svg
-      class={`signature ${className}`.trim()}
-      viewBox="0 0 180 110"
-      aria-hidden="true"
-      data-todo={signature.todo}
-      {...rest}
-    >
-      <g transform="skewX(-12) translate(20 0)">
-        <path
-          class="ink ink--pen"
-          d="M10,84 C18,60 28,38 38,18 C41,10 51,10 54,18 C58,29 46,38 33,40
-             C48,39 63,44 61,55 C59,66 44,70 31,63"
-        />
-        <path
-          class="ink ink--pen"
-          d="M66,22 C71,44 79,63 87,76 C94,62 99,43 103,22
-             C107,44 114,63 121,76 C128,61 134,41 138,20"
-        />
-        <path class="ink ink--pen" d="M14,95 C52,88 102,99 148,90 C157,88 161,93 153,97" />
-      </g>
+    <svg class={`signature ${className}`.trim()} viewBox="0 0 614 600" aria-hidden="true" {...rest}>
+      <defs>
+        <mask id="sig-reveal" maskUnits="userSpaceOnUse" x="0" y="0" width="614" height="600">
+          {reveal.map((d) => <path class="ink sig__reveal" d={d} />)}
+        </mask>
+      </defs>
+      <path class="sig__ink" d={ink} fill-rule="evenodd" mask="url(#sig-reveal)" />
     </svg>
   )
 }
@@ -59,17 +81,43 @@ const { class: className = '', ...rest } = Astro.props;
 <style>
   .signature {
     display: block;
-    width: clamp(5.5rem, 9vw, 7.5rem);
-    height: auto;
+    /* Sized by HEIGHT: the real signature is nearly square, where the old
+       stand-in was a wide monogram, so holding the width would have set it
+       half as tall again as everything around it. */
+    height: clamp(3.75rem, 6.5vw, 5.25rem);
+    width: auto;
     margin-top: var(--sp-lg);
-    transform: rotate(-1.5deg);
-    transform-origin: left center;
     overflow: visible;
+  }
+
+  /* Reached through the <svg>, not selected directly: Astro puts its scoping
+     attribute on the root element of the component but not on these children,
+     so a bare .sig__ink would compile to a selector that matches nothing.
+     Going through the parent also outranks the global .ink rule, so none of
+     this needs !important. */
+  .signature :global(.sig__ink) {
+    fill: var(--ink);
+  }
+
+  /* White is what a mask counts as "show". 34 units covers the widest part of
+     the ink (30) with a little to spare; the round cap and join keep the
+     revealing front from showing a square edge.
+     The class .ink is kept on these so the draw-on engine finds them, but
+     everything that rule sets for a visible pen mark has to come back off. */
+  .signature :global(.sig__reveal) {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 34;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: none;
   }
 
   /* A scan arrives as pixels on white; multiply drops the paper away so it
      sits on the page rather than in a box. */
   .signature--scan {
     mix-blend-mode: multiply;
+    height: auto;
+    width: clamp(5.5rem, 9vw, 7.5rem);
   }
 </style>

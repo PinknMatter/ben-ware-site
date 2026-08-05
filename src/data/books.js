@@ -6,7 +6,9 @@
 //   title        the title as this site sets it
 //   publishedAs  set only where the publisher's title differs from Ben's own
 //   hook         one sentence, for the catalogue and the homepage
-//   blurb        the full description, for the book's own page
+//   blurb        the full description, for the book's own page, as an array of
+//                paragraphs — publishers supply a jacket blurb as one block of
+//                text, which at page measure reads as a wall
 //   buy          ordered list of places to buy; the first is the publisher
 //   praiseShort  trimmed quotes for the homepage carousel (client-supplied)
 //   endorsements the full praise, longest-standing first
@@ -31,7 +33,11 @@ export const books = [
       { label: 'Amazon', url: 'https://www.amazon.co.uk/Extinction-Beginning-Again-At-End/dp/178873999X' },
     ],
     hook: 'As we face ‘the end of all things’, extinction becomes the very lens through which to examine our current reality — and beginning again at the end, a form of liberation.',
-    blurb: 'On Extinction takes us on a breathtaking philosophical journey through desperate territory. As we face ‘the end of all things’, Ben Ware argues we must face our apocalyptic future without flinching. In fact, extinction is the very lens through which we should examine our current reality. Radical politics today should not be concerned with merely averting the worst but rather with beginning again at the end. To think about the future in this way is itself a form of liberation that might incubate the necessary radical solutions we need. Combining lessons from Kant, Hegel, Adorno, and Lacan, as well as drawing on popular culture and ecology, Ware recasts the most urgent issue of our times and resolves that we can only consider our collective end by treating it as a starting point.',
+    blurb: [
+      'On Extinction takes us on a breathtaking philosophical journey through desperate territory. As we face ‘the end of all things’, Ben Ware argues we must face our apocalyptic future without flinching. In fact, extinction is the very lens through which we should examine our current reality.',
+      'Radical politics today should not be concerned with merely averting the worst but rather with beginning again at the end. To think about the future in this way is itself a form of liberation that might incubate the necessary radical solutions we need.',
+      'Combining lessons from Kant, Hegel, Adorno, and Lacan, as well as drawing on popular culture and ecology, Ware recasts the most urgent issue of our times and resolves that we can only consider our collective end by treating it as a starting point.',
+    ],
     // The three the client chose for the homepage carousel, in his wording.
     praiseShort: [
       {
@@ -73,15 +79,18 @@ export const books = [
     publisher: 'Palgrave Macmillan',
     year: '2017',
     role: null,
-    cover: null,
-    coverIsPlaceholder: true,
+    cover: '/covers/living-wrong-life.avif',
     publisherUrl: 'https://link.springer.com/book/10.1057/978-1-137-55503-8',
     buy: [
       { label: 'Publisher', url: 'https://link.springer.com/book/10.1057/978-1-137-55503-8' },
       { label: 'Amazon', url: 'https://www.amazon.co.uk/Modernism-Ethics-Political-Imagination-Discourse/dp/134971710X' },
     ],
     hook: 'A bold reassessment of modernism and ethics: modernist literature and philosophy as a crucial point of reference for today’s emancipatory struggles.',
-    blurb: 'In this groundbreaking new study, Ben Ware carries out a bold reassessment of the relationship between modernism and ethics, arguing that modernist literature and philosophy offer more than simply a snapshot of the moral conflicts of the past: they provide a crucial point of reference for today’s emancipatory struggles. Investigating ethical ideas in Wittgenstein, Beckett, Kierkegaard, Kant, Cavell, Marx, Henry James and Lacan, Ware demonstrates how these thinkers can bring us to a new understanding of a constellation of issues which contemporary radical thought must re-visit: utopia, repetition, perfectionism, subtraction, negativity, critique, absence, duty, revolution and political love. The result is a timely and provocative intervention, which re-draws the boundaries for future debates on the ethics and politics of modernism.',
+    blurb: [
+      'In this groundbreaking new study, Ben Ware carries out a bold reassessment of the relationship between modernism and ethics, arguing that modernist literature and philosophy offer more than simply a snapshot of the moral conflicts of the past: they provide a crucial point of reference for today’s emancipatory struggles.',
+      'Investigating ethical ideas in Wittgenstein, Beckett, Kierkegaard, Kant, Cavell, Marx, Henry James and Lacan, Ware demonstrates how these thinkers can bring us to a new understanding of a constellation of issues which contemporary radical thought must re-visit: utopia, repetition, perfectionism, subtraction, negativity, critique, absence, duty, revolution and political love.',
+      'The result is a timely and provocative intervention, which re-draws the boundaries for future debates on the ethics and politics of modernism.',
+    ],
     endorsements: [
       { quote: 'The aim of this book is of extreme importance: nothing short of a new ethics, based on the modernist slogan, ‘See it new!’ Ben Ware applies his vast philosophical and literary culture to the task, and the resulting analyses are superb…It will be difficult to talk about contemporary ethics without taking [Ware’s] work into account.', source: 'Jean-Jacques Lecercle, author of <em>A Marxist Philosophy of Language</em>' },
       { quote: 'Ware’s sketches of an endangered ethical landscape are urgent and timely reminders of the importance of ethical reasoning as much for politics as for personal conduct but above all for the difficult terrain that lies between them.', source: 'Howard Caygill, author of <em>On Resistance</em>' },
@@ -100,14 +109,18 @@ export const books = [
     publisherUrl: 'https://www.bloomsbury.com/uk/dialectic-of-the-ladder-9781472591425/',
     buy: [
       { label: 'Publisher', url: 'https://www.bloomsbury.com/uk/dialectic-of-the-ladder-9781472591425/' },
-      { label: 'Amazon', url: 'https://www.amazon.co.uk/Dialectic-Ladder-Wittgenstein-Tractatus-Modernism/dp/1472591402' },
       // Die Dialektik der Leiter (Turia + Kant). The client's link carried
       // Amazon's search-tracking query string; this is the same product page
-      // without it.
+      // without it. Listed straight after the publisher at the client's ask.
       { label: 'German edition', url: 'https://www.amazon.co.uk/Die-Dialektik-Leiter-Wittgensteins-Modernismus/dp/3896658379', note: 'Die Dialektik der Leiter' },
+      { label: 'Amazon', url: 'https://www.amazon.co.uk/Dialectic-Ladder-Wittgenstein-Tractatus-Modernism/dp/1472591402' },
     ],
     hook: 'Wittgenstein’s enigmatic early masterpiece re-read as a dialectical, modernist work — its anti-philosophical ambition tied to its radical aesthetic character.',
-    blurb: 'Ludwig Wittgenstein’s Tractatus Logico-Philosophicus (1922) remains one of the most enigmatic works of twentieth century thought. In this bold and original new study, Ben Ware argues that Wittgenstein’s early masterpiece is neither an analytic treatise on language and logic, nor a quasi-mystical work seeking to communicate ‘ineffable’ truths. Instead, we come to understand the Tractatus by grasping it in a twofold sense: first, as a dialectical work which invites the reader to overcome certain ‘illusions of thought’; and second as a modernist work whose anti-philosophical ambition is intimately tied to its radical aesthetic character. By placing the Tractatus in the force field of modernism, Dialectic of the Ladder clears the ground for a new and challenging exploration of the work’s ethical dimension. It also casts new light upon the cultural, aesthetic and political significances of Wittgenstein’s writing, revealing hitherto unacknowledged affinities with a host of philosophical and literary authors, including Hegel, Kierkegaard, Marx, Nietzsche, Adorno, Benjamin, and Kafka.',
+    blurb: [
+      'Ludwig Wittgenstein’s Tractatus Logico-Philosophicus (1922) remains one of the most enigmatic works of twentieth century thought. In this bold and original new study, Ben Ware argues that Wittgenstein’s early masterpiece is neither an analytic treatise on language and logic, nor a quasi-mystical work seeking to communicate ‘ineffable’ truths.',
+      'Instead, we come to understand the Tractatus by grasping it in a twofold sense: first, as a dialectical work which invites the reader to overcome certain ‘illusions of thought’; and second as a modernist work whose anti-philosophical ambition is intimately tied to its radical aesthetic character.',
+      'By placing the Tractatus in the force field of modernism, Dialectic of the Ladder clears the ground for a new and challenging exploration of the work’s ethical dimension. It also casts new light upon the cultural, aesthetic and political significances of Wittgenstein’s writing, revealing hitherto unacknowledged affinities with a host of philosophical and literary authors, including Hegel, Kierkegaard, Marx, Nietzsche, Adorno, Benjamin, and Kafka.',
+    ],
     endorsements: [
       { quote: 'Ben Ware’s superb study not only offers a lucid and original reading of Wittgenstein’s Tractatus; it also situates it with admirable skill in the context of literary modernism and in doing so casts radical new light on this notoriously difficult philosophical text.', source: 'Terry Eagleton, author of <em>Why Marx Was Right</em>' },
       { quote: 'Departing from Wittgenstein’s claim that the Tractatus is ‘strictly philosophical and at the same time literary’ Ben Ware succeeds in showing not only how it works as a contribution to literary modernism but also how this is inseparable from its philosophical achievement. He restores the strangeness to a text that we thought had become familiar and places it in the company of Kierkegaard, Nietzsche, Hofmannsthal and Kafka. It is sure to send readers back to the Tractatus with renewed wonder and curiosity.', source: 'Howard Caygill, author of <em>Walter Benjamin: The Colour of Experience</em>' },
@@ -130,7 +143,12 @@ export const books = [
       { label: 'Amazon', url: 'https://www.amazon.co.uk/Bacon-Disfigured-Ben-Ware/dp/0500966656' },
     ],
     hook: 'Leading philosophers and psychoanalytic theorists do to Bacon what Bacon does to his figures: disfigure and distort him into something new and previously unseen.',
-    blurb: 'Francis Bacon is undoubtedly one of the most important artists of the twentieth century. In his paintings, Bacon radically disfigures his subjects, making them all but unrecognizable. This is no mere stylistic quirk, but the expression of a deeply held aesthetic vision. For Bacon, the essence of a subject can only be captured in the distorted recording of its appearance. His disfigurations are therefore, as he himself says, attempts to bring back the intensity of reality, to paint images that are ‘truer than the literal truth’. In this groundbreaking collection of essays, some of today’s leading philosophers and psychoanalytic theorists go to work on Bacon. They do to the artist what the artist does to his own figures: they disfigure and distort him, twisting and turning him into something new and previously unseen. This strategy of disfiguration blasts Bacon out of his traditional contexts, opening up new connections between his art and the ideas of key thinkers, including Kant, Marx, Nietzsche, Baudelaire, Freud, Canguilhem, Genet, Lacan, Adorno and Althusser. The results are revelatory, allowing us to transform our understanding not only of Bacon but also of modernism itself.',
+    blurb: [
+      'Francis Bacon is undoubtedly one of the most important artists of the twentieth century. In his paintings, Bacon radically disfigures his subjects, making them all but unrecognizable. This is no mere stylistic quirk, but the expression of a deeply held aesthetic vision.',
+      'For Bacon, the essence of a subject can only be captured in the distorted recording of its appearance. His disfigurations are therefore, as he himself says, attempts to bring back the intensity of reality, to paint images that are ‘truer than the literal truth’.',
+      'In this groundbreaking collection of essays, some of today’s leading philosophers and psychoanalytic theorists go to work on Bacon. They do to the artist what the artist does to his own figures: they disfigure and distort him, twisting and turning him into something new and previously unseen.',
+      'This strategy of disfiguration blasts Bacon out of his traditional contexts, opening up new connections between his art and the ideas of key thinkers, including Kant, Marx, Nietzsche, Baudelaire, Freud, Canguilhem, Genet, Lacan, Adorno and Althusser. The results are revelatory, allowing us to transform our understanding not only of Bacon but also of modernism itself.',
+    ],
     endorsements: [],
   },
   {
@@ -148,12 +166,15 @@ export const books = [
         label: 'Publisher',
         url: 'https://www.thamesandhudson.com/products/francis-bacon-painting-philosophy-psychoanalysis-francis-bacon-studies',
       },
-      // TODO: client to confirm the Amazon listing for this title; the other
-      // four are live product pages.
-      { label: 'Amazon', url: null, todo: 'amazon-link' },
+      { label: 'Amazon', url: 'https://www.amazon.co.uk/Francis-Bacon-Painting-Philosophy-Psychoanalysis/dp/050097098X' },
     ],
     hook: 'Today’s leading philosophers and psychoanalytic critics go beyond established readings of Bacon, opening up radically new ways of thinking about his art.',
-    blurb: 'Francis Bacon is one of the most important artists of the 20th century. His works continue to puzzle and unnerve viewers, raising complex questions about their meaning. Over recent decades, two theoretical approaches to Bacon’s work have come to hold sway: firstly, that Bacon is an existentialist painter, depicting an absurd and godless world; and secondly, that he is an anti-representational painter, whose primary aim is to bring his work directly onto the spectator’s ‘nervous system’. Francis Bacon: Painting, Philosophy, Psychoanalysis brings together some of today’s leading philosophers and psychoanalytic critics to go beyond established readings of Bacon and to open up radically new ways of thinking about his art. The essays bring Bacon into dialogue with figures such as Aristotle, Hegel, Freud, Lacan, Adorno and Heidegger, as well as situating his work in the broader contexts of modernism and modernity. The result is a timely and thought-provoking collection that will be essential reading for anyone interested in Bacon, modern art and contemporary aesthetics.',
+    blurb: [
+      'Francis Bacon is one of the most important artists of the 20th century. His works continue to puzzle and unnerve viewers, raising complex questions about their meaning.',
+      'Over recent decades, two theoretical approaches to Bacon’s work have come to hold sway: firstly, that Bacon is an existentialist painter, depicting an absurd and godless world; and secondly, that he is an anti-representational painter, whose primary aim is to bring his work directly onto the spectator’s ‘nervous system’.',
+      'Francis Bacon: Painting, Philosophy, Psychoanalysis brings together some of today’s leading philosophers and psychoanalytic critics to go beyond established readings of Bacon and to open up radically new ways of thinking about his art. The essays bring Bacon into dialogue with figures such as Aristotle, Hegel, Freud, Lacan, Adorno and Heidegger, as well as situating his work in the broader contexts of modernism and modernity.',
+      'The result is a timely and thought-provoking collection that will be essential reading for anyone interested in Bacon, modern art and contemporary aesthetics.',
+    ],
     endorsements: [],
   },
 ];
@@ -162,6 +183,12 @@ export const bookBySlug = Object.fromEntries(books.map((b) => [b.slug, b]));
 
 // Newest first — the order a list of works is normally given in.
 export const booksByYear = [...books].sort((a, b) => Number(b.year) - Number(a.year));
+
+// The description as one string, for the meta description and the schema —
+// structured data wants the blurb, not our paragraphing of it.
+export function blurbText(book) {
+  return book.blurb.join(' ');
+}
 
 // A title set for reading: the subtitle drops to its own line at a smaller
 // size, the way a title page sets it.

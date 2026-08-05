@@ -74,6 +74,28 @@ const { name, quotes, class: className = '' } = Astro.props;
     height: 2px;
   }
 
+  /* A thumb needs more than a 22×24 button, but the mark must not grow with it
+     — on the homepage these sit on the book's subtitle line, and a taller
+     button would push that row apart. So the target is an absolutely
+     positioned overlay: no layout effect, mark unchanged, 34×44 to press.
+     It widens by exactly the gap, so neighbouring targets meet without
+     overlapping — overlapping targets are worse to hit than small ones. */
+  @media (pointer: coarse), (max-width: 46rem) {
+    .dots {
+      gap: 0.75rem;
+    }
+
+    .dot::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: calc(100% + 0.75rem);
+      height: 2.75rem;
+      transform: translate(-50%, -50%);
+    }
+  }
+
   .vh {
     position: absolute;
     width: 1px;

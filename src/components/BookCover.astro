@@ -35,11 +35,13 @@ const { book, decorative = false, loading = 'lazy', class: className = '' } = As
       />
     </span>
   ) : (
-    /* No jacket yet. Rather than a broken box, this is a blank case at the
-       right proportions, so the shelf still reads as a shelf. It carries only
-       the note — the title is always set beside or beneath it, and at contents
-       size the box is barely 75px wide, which a title cannot survive. */
-    <span class={`cover cover--blank ${className}`.trim()} data-todo="cover-living-wrong-life">
+    /* No jacket. Rather than a broken box, this is a blank case at the right
+       proportions, so the shelf still reads as a shelf. It carries only the
+       note — the title is always set beside or beneath it, and at contents
+       size the box is barely 75px wide, which a title cannot survive.
+       Every book now has its jacket, so nothing reaches this branch; it stays
+       as the fallback for whatever is added next. */
+    <span class={`cover cover--blank ${className}`.trim()}>
       <span class="cover__blank">
         <span class="cover__blank-note">Cover to follow</span>
       </span>
@@ -74,7 +76,9 @@ const { book, decorative = false, loading = 'lazy', class: className = '' } = As
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 2 / 3;
+    /* The client's jackets, not a nominal paperback: 2/3 makes the blank case
+       narrower than the real covers and breaks the shelf's right edge. */
+    aspect-ratio: 286 / 371;
     height: 100%;
     max-width: 100%;
     padding: 0.6rem;

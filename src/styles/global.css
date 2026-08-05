@@ -3,7 +3,7 @@
 
    The whole site is one book. Libre Caslon throughout, white paper, warm-black
    ink, hairline rules, and a single pen used sparingly for drawn marks. There
-   is no second typeface and no second colour: the accent red appears only as
+   is no second typeface and no second colour: the accent blue appears only as
    interaction feedback, so a hover reads like an annotation.
 
    Accent is PROVISIONAL — change --accent here and it changes site-wide.
@@ -22,7 +22,11 @@
   --ink-18: color-mix(in oklab, var(--ink) 18%, var(--paper));
   --ink-08: color-mix(in oklab, var(--ink) 8%, var(--paper));
 
-  --accent: #e63b2e; /* TODO: provisional accent, not yet agreed with client */
+  /* A deep ink blue, not a link blue: dark enough to sit on a Caslon page
+     without shouting, light enough that the Buy button's hover reads as a
+     change against the near-black ink rather than as a darker shade of it.
+     TODO: provisional accent, not yet agreed with client. */
+  --accent: #1a4b9c;
 
   --display: 'Libre Caslon Display', 'Libre Caslon Text', Georgia, 'Times New Roman', serif;
   --text: 'Libre Caslon Text', Georgia, 'Times New Roman', serif;
@@ -336,23 +340,29 @@ a.entry:hover .entry__title {
   color: var(--ink-70);
 }
 
+/* Narrow: the year and the tag share the first line and the title takes the
+   full width beneath them, rather than the three fighting over one row.
+   Deliberately NOT applied to .entry--plain: those rows have no year, so the
+   first line would hold nothing but a tag hanging on the right over empty
+   paper, with the title stranded on a line of its own below it. They keep the
+   title-left, tag-right pairing, which is what they already are. */
 @media (max-width: 560px) {
-  .entry {
+  .entry:not(.entry--plain) {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.4rem var(--sp-md);
   }
 
-  .entry__year {
+  .entry:not(.entry--plain) .entry__year {
     grid-column: 1;
     grid-row: 1;
   }
 
-  .entry__text {
+  .entry:not(.entry--plain) .entry__text {
     grid-column: 1 / -1;
     grid-row: 2;
   }
 
-  .entry .tag {
+  .entry:not(.entry--plain) .tag {
     grid-column: 2;
     grid-row: 1;
     text-align: right;
@@ -389,9 +399,23 @@ a.entry:hover .entry__title {
   padding-block: var(--sp-xl) var(--sp-lg);
 }
 
-/* A page that opens straight into its prose rather than on a display title. */
+/* A page that opens straight into its prose rather than on a display title.
+   Its heading is present for the outline but not shown, so this only has to
+   hold the space above the prose. */
 .page-head--quiet {
-  padding-block: var(--sp-xl) var(--sp-md);
+  padding-block: var(--sp-lg) 0;
+}
+
+/* Present for a screen reader, absent for the eye. */
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .page-head__title {

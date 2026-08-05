@@ -35,6 +35,16 @@ const imageUrl = new URL(u(image), Astro.site ?? 'http://localhost:4321');
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Marks the document as scripted BEFORE the body is painted, which is
+         the whole point of it being inline and in the head. Anything that must
+         be hidden only when JavaScript is available — the mobile nav panel —
+         hangs off html.js. Gating that on a flag set by the deferred bundle
+         instead meant the browser painted the nav in flow first and then hid
+         it, so the menu flashed open on every page load. With JS off the class
+         never appears and the nav stays in flow, which is the fallback. -->
+    <script is:inline>document.documentElement.className += ' js';</script>
+
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical.href} />

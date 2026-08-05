@@ -47,7 +47,6 @@ const schema = {
   schema={schema}
 >
   <div class="page-head">
-    <p class="label">Catalogue</p>
     <h1 class="page-head__title">Books</h1>
     <p class="lede">
       Three books on modernism, ethics and the end of the world, and two volumes on Francis Bacon
@@ -56,13 +55,14 @@ const schema = {
   </div>
 
   <!-- The contents, set as a shelf: jackets bottom-aligned on a shelf line,
-       each jumping to its entry below. -->
+       each opening the book's own page. Taking a book off a shelf should hand
+       you the book, not scroll you down the list to its entry. -->
   <nav class="shelf" aria-label="Contents">
     <ul>
       {
         shelf.map((book) => (
           <li>
-            <a class="shelf__item" href={`#${book.slug}`}>
+            <a class="shelf__item" href={u(`/books/${book.slug}`)}>
               <BookCover book={book} decorative />
               <span class="shelf__title">{book.shortTitle}</span>
               <span class="shelf__year">{book.year}</span>

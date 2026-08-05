@@ -11,7 +11,6 @@ import { writing, interviews, videos, groupByYear } from '../data/writing.js';
 import { u } from '../lib/url.js';
 
 const years = groupByYear(writing);
-const published = writing.filter((w) => w.url).length;
 
 const sections = [
   { id: 'essays', label: 'Essays & papers', count: writing.length },
@@ -26,7 +25,6 @@ const sections = [
   description="Essays, papers, interviews and recorded talks by Ben Ware — philosopher and social theorist."
 >
   <div class="page-head">
-    <p class="label">Writing &amp; Media</p>
     <h1 class="page-head__title">Writing</h1>
     <p class="lede">
       Essays and papers for <em>e-flux</em>, <em>Lit Hub</em>, <em>TANK</em>, the
@@ -102,10 +100,6 @@ const sections = [
         ))
       }
     </div>
-
-    <p class="note">
-      {published} of {writing.length} pieces are linked; the rest are with the publisher.
-    </p>
   </section>
 
   <Flourish hand={1} />
@@ -227,13 +221,6 @@ const sections = [
 
   .year__items {
     border-top: 1px solid var(--ink-18);
-  }
-
-  .note {
-    margin: var(--sp-md) 0 0;
-    font-style: italic;
-    font-size: 0.875rem;
-    color: var(--ink-60);
   }
 
   @media (max-width: 40rem) {

@@ -71,7 +71,15 @@ const schema = {
           loading="eager"
           fetchpriority="high"
         />
+
+        <!-- Signed across the corner of the plate, the way a print is. It sits
+             INSIDE the mount because the mount is what it is positioned
+             against, and it hangs OUTWARD from the corner rather than onto the
+             photograph: the bottom right of this portrait is his black coat,
+             and near-black ink on it would simply disappear. -->
+        <Signature class="frontis__signature" data-intro="3" />
       </span>
+
       <!-- A plate caption credits the engraver; here it wants the
            photographer, once the client supplies the name. -->
       <figcaption class="plate__caption" data-todo="portrait-credit">{site.place}</figcaption>
@@ -96,7 +104,6 @@ const schema = {
         Art at King’s College London.
       </p>
 
-      <Signature data-intro="3" />
     </div>
   </section>
 
@@ -252,6 +259,33 @@ const schema = {
      hair of contrast — the warmth it wanted on ivory would read as a cast. */
   .frontis__plate img {
     filter: contrast(1.03);
+  }
+
+  /* The mount, not the figure, is what the signature is hung off — the figure
+     also contains the caption, so its bottom edge is below the plate. */
+  .frontis__plate .plate__mount {
+    position: relative;
+  }
+
+  .frontis__signature {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin-top: 0;
+    /* Hung off the corner in fractions of the signature's OWN size, so the
+       overlap holds at every width. Offsets in vw drift instead: the measure
+       stops growing at 62rem while vw does not, so a placement tuned at one
+       width slides off the frame at another.
+       The mark crosses the mount's white border but not the print: the bottom
+       right of the photograph is his black coat, and near-black ink on it
+       would simply disappear. Checked by testing the INK — the box's top left
+       corner is empty, so a rectangle-overlap test reads as crossing when
+       nothing is actually touching. */
+    /* A few degrees clockwise, because a hand signing the corner of a print
+       does not hold it square to the mount. */
+    transform: translate(80%, 39%) rotate(9deg);
+    /* Above the mount so where it crosses the frame it reads as ink on top. */
+    z-index: 1;
   }
 
   .title__name {
@@ -439,7 +473,11 @@ const schema = {
      Narrow leaf: the plate leads, then the type.
   ------------------------------------------------------------------ */
 
-  @media (max-width: 51rem) {
+  /* 38rem, not 51rem: the frontispiece is the page's whole argument — portrait
+     facing the title, his eyeline running into the type — and it still fits
+     comfortably at 600px. Collapsing it at 816px left the name and the lede in
+     the left half of a tablet with the right half empty. */
+  @media (max-width: 38rem) {
     .frontis {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--sp-lg);
@@ -449,12 +487,32 @@ const schema = {
       width: min(100%, 20rem);
     }
 
+    /* Stacked, the plate is as wide as the page allows, so its right edge IS
+       the gutter — anything hung off that corner hangs off the screen and the
+       whole page scrolls sideways. Below this width the signature drops under
+       the plate instead, still right-aligned and still clear of the print,
+       which needs no room to the side at all. */
+    .frontis__signature {
+      transform: translate(0, 96%) rotate(9deg);
+    }
+  }
+
+  /* The lead book keeps the old breakpoint: its text block is a hook plus a
+     rotating endorsement, which wants more room than the frontispiece does. */
+  @media (max-width: 51rem) {
     .lead {
       grid-template-columns: minmax(0, 1fr);
     }
 
+    /* The jacket is now sized by WIDTH, so the height has to stop being a
+       number: --cover-h exists to make the jacket the taller of the two
+       desktop columns, and any fixed value left here letterboxes the art
+       inside a box the wrong shape — the column is often narrower than the
+       9rem cap, so no single height can match it. auto lets the scan's own
+       proportions decide, which is what sizing by width means. */
     .lead__cover {
       width: min(100%, 9rem);
+      --cover-h: auto;
     }
   }
 </style>

@@ -11,7 +11,7 @@ import BookCover from '../../components/BookCover.astro';
 import BuyBlock from '../../components/BuyBlock.astro';
 import QuoteCarousel from '../../components/QuoteCarousel.astro';
 import CarouselDots from '../../components/CarouselDots.astro';
-import { books, splitTitle } from '../../data/books.js';
+import { books, splitTitle, blurbText } from '../../data/books.js';
 import { u } from '../../lib/url.js';
 
 export function getStaticPaths() {
@@ -56,7 +56,7 @@ const schema = {
   author: { '@type': 'Person', name: 'Ben Ware' },
   publisher: { '@type': 'Organization', name: book.publisher },
   datePublished: book.year,
-  description: book.blurb,
+  description: blurbText(book),
   url: new URL(u(`/books/${book.slug}`), origin).href,
   ...(book.cover ? { image: new URL(u(book.cover), origin).href } : {}),
   ...(book.publishedAs ? { alternateName: book.publishedAs } : {}),
@@ -117,63 +117,55 @@ const schema = {
   <section class="section" aria-labelledby="h-about">
     <h2 class="label" id="h-about">About the book</h2>
 
-    <!-- The praise is floated into the description rather than stacked under
-         it, so the paragraph runs around it the way a magazine sets a pull
-         quote. A plain float is all this needs — CSS Shapes (shape-outside)
-         only earns its keep when the text has to follow a non-rectangular
-         edge, and a rectangle is the right shape here. The float comes first
-         in the source because a float only affects the lines that follow it. -->
-    <div class="about">
-      {
-        book.endorsements.length > 0 && (
-          <aside class="about__praise" aria-labelledby="h-praise">
-            <div class="about__praise-head">
-              <h3 class="label" id="h-praise">
-                Praise
-              </h3>
-              <CarouselDots name={`praise-${book.slug}`} quotes={rotating} />
-            </div>
-            <QuoteCarousel
-              quotes={rotating}
-              name={`praise-${book.slug}`}
-              dots={false}
-              interval={7000}
-              label={`Praise for ${book.shortTitle}`}
-            />
-          </aside>
-        )
-      }
-
-      <div class="prose prose--opening">
-        <p>{book.blurb}</p>
-      </div>
+    <!-- The description is authored as paragraphs; a jacket blurb arrives as
+         one block of text, and at this measure that reads as a wall. -->
+    <div class="prose prose--opening">
+      {book.blurb.map((para) => <p>{para}</p>)}
     </div>
-
-    {
-      book.endorsements.length > rotating.length && (
-        <div class="praise__rest">
-          <div id={`more-praise-${book.slug}`} class="praise__list" hidden>
-            {book.endorsements.map((e) => (
-              <blockquote class="praise__item">
-                <p>{e.quote}</p>
-                <cite set:html={e.source} />
-              </blockquote>
-            ))}
-          </div>
-          <button
-            class="praise__toggle"
-            type="button"
-            aria-expanded="false"
-            aria-controls={`more-praise-${book.slug}`}
-            data-praise-toggle
-            data-label-closed={`Read all ${book.endorsements.length} endorsements ↓`}
-          >
-            {`Read all ${book.endorsements.length} endorsements ↓`}
-          </button>
-        </div>
-      )
-    }
   </section>
+
+  {
+    book.endorsements.length > 0 && (
+      <section class="section praise" aria-labelledby="h-praise">
+        <div class="praise__head">
+          <h3 class="label" id="h-praise">
+            Praise
+          </h3>
+          <CarouselDots name={`praise-${book.slug}`} quotes={rotating} />
+        </div>
+        <QuoteCarousel
+          quotes={rotating}
+          name={`praise-${book.slug}`}
+          dots={false}
+          interval={7000}
+          label={`Praise for ${book.shortTitle}`}
+        />
+
+        {book.endorsements.length > rotating.length && (
+          <div class="praise__rest">
+            <div id={`more-praise-${book.slug}`} class="praise__list" hidden>
+              {book.endorsements.map((e) => (
+                <blockquote class="praise__item">
+                  <p>{e.quote}</p>
+                  <cite set:html={e.source} />
+                </blockquote>
+              ))}
+            </div>
+            <button
+              class="praise__toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls={`more-praise-${book.slug}`}
+              data-praise-toggle
+              data-label-closed={`Read all ${book.endorsements.length} endorsements ↓`}
+            >
+              {`Read all ${book.endorsements.length} endorsements ↓`}
+            </button>
+          </div>
+        )}
+      </section>
+    )
+  }
 
   <!-- Turning the leaf: the neighbouring works, in catalogue order. -->
   <nav class="turn" aria-label="Other books">
@@ -253,40 +245,8 @@ const schema = {
   }
 
   /* ------------------------------------------------------------------
-     Description — opened with a drop capital, as a chapter is, with the
-     praise floated into the right-hand side of it.
+     Description — opened with a drop capital, as a chapter is.
   ------------------------------------------------------------------ */
-
-  /* flow-root so the float is contained by the section instead of hanging
-     into whatever follows. */
-  .about {
-    display: flow-root;
-  }
-
-  .about__praise {
-    float: right;
-    width: min(23rem, 44%);
-    margin: 0.4rem 0 var(--sp-md) clamp(1.5rem, 4vw, 3.5rem);
-  }
-
-  /* Label and dials on one line, as on the homepage. */
-  .about__praise-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--sp-md);
-    margin-bottom: 0.4rem;
-  }
-
-  .about__praise :global(.carousel) {
-    margin-top: 0;
-  }
-
-  /* The float already sets the measure of the wrapped text; capping the prose
-     as well would leave it a narrow ribbon. */
-  .about .prose {
-    max-width: none;
-  }
 
   .prose--opening > p:first-of-type::first-letter {
     float: left;
@@ -297,8 +257,34 @@ const schema = {
   }
 
   /* ------------------------------------------------------------------
-     Praise
+     Praise — under the description, where a jacket puts it: you read what
+     the book is before you read what other people made of it.
   ------------------------------------------------------------------ */
+
+  .praise {
+    /* Wider than the carousel's default 44ch: every slide shares one cell, so
+       the block stands as tall as the LONGEST quote, and a narrow measure pays
+       for that in empty paper under the short ones. */
+    --praise-measure: 54ch;
+    margin-top: var(--sp-xl);
+  }
+
+  /* Label and dials on one line, as on the homepage. The head is held to the
+     carousel's own measure so the dials sit over the right edge of the quote
+     rather than out at the edge of the page. */
+  .praise__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-md);
+    max-width: var(--praise-measure);
+  }
+
+  /* The section already sets the gap between the head and the quote. */
+  .praise :global(.carousel) {
+    max-width: var(--praise-measure);
+    margin-top: 0;
+  }
 
   .praise__item cite {
     display: block;
@@ -318,8 +304,7 @@ const schema = {
   }
 
   .praise__rest {
-    clear: both;
-    margin-top: var(--sp-xl);
+    margin-top: var(--sp-md);
   }
 
   .praise__list {
@@ -382,13 +367,6 @@ const schema = {
 
     .praise__list {
       columns: 1;
-    }
-
-    /* Too narrow to wrap around: the praise goes back above the description. */
-    .about__praise {
-      float: none;
-      width: auto;
-      margin: 0 0 var(--sp-lg);
     }
   }
 

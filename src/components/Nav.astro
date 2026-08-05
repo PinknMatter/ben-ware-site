@@ -2,9 +2,19 @@
 // The running head — the classical page header: name at the left, contents at
 // the right, hairline under.
 //
-// Three links do not need a hamburger. On a narrow screen the nav simply wraps
-// to a second line under the name, which is both less code and less to go
-// wrong than a disclosure menu.
+// Below 34rem the contents fold behind a hamburger and open as a panel that
+// slides in from the right. The panel is position: fixed, so it is out of the
+// header's flow entirely — the running head keeps its one line, and nothing on
+// the page moves when the menu opens.
+//
+// The whole disclosure is gated on html.js, set by an inline script in the head
+// of Base.astro: with no JavaScript the button never appears and the nav simply
+// wraps to a second line as it always did. That ordering matters — CSS that hid
+// the links unconditionally would leave the site unnavigable if the script
+// never ran. It has to be the INLINE head script rather than this module,
+// though: a deferred flag arrives after first paint, so the nav rendered in
+// flow and was then hidden, which read as the menu flashing open on every
+// page load.
 import { site } from '../data/site.js';
 import { u } from '../lib/url.js';
 
@@ -15,10 +25,29 @@ const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
 ---
 
-<header class="head">
+<header class="head" data-nav>
   <div class="measure head__inner">
-    <a class="head__name" href={u('/')}>{site.name}</a>
-    <nav class="head__nav" aria-label="Main">
+    <a class="head__name" href={u('/')} data-nav-name>{site.name}</a>
+
+    <!-- The button stays above the panel it opens, so the three rules become a
+         cross in the same spot rather than the panel sliding over the control
+         and needing a second close button somewhere else. -->
+    <button
+      class="head__toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="head-nav"
+      data-nav-toggle
+    >
+      <span class="head__bars" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+      <span class="vh">Menu</span>
+    </button>
+
+    <nav class="head__nav" id="head-nav" aria-label="Main" data-nav-panel>
       {
         site.nav.map((link) => (
           <a
@@ -30,6 +59,8 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
         ))
       }
     </nav>
+
+    <div class="head__scrim" data-nav-scrim aria-hidden="true"></div>
   </div>
   <!-- Outside the measure on purpose: on a wide screen a rule that stops at
        the text column reads as an underline for the nav rather than as the
@@ -75,6 +106,192 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
     border-bottom-color: var(--ink);
   }
 
+  /* ------------------------------------------------------------------
+     The hamburger
+
+     Three hairlines, which is what the rest of the site is drawn with. The
+     button is laid out at all widths but only shown once the script has run
+     AND the screen is narrow.
+  ------------------------------------------------------------------ */
+
+  .head__toggle {
+    display: none;
+    /* Above the panel, so the morph to a cross happens in place. */
+    position: relative;
+    z-index: 3;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    /* A 44px target, pulled back by its own padding so the running head keeps
+       the height it has at every other width. */
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: -0.75rem -0.75rem -0.75rem 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .head__bars {
+    position: relative;
+    display: block;
+    width: 1.25rem;
+    height: 0.625rem;
+  }
+
+  .head__bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transition:
+      transform var(--dur) var(--ease),
+      opacity var(--dur) var(--ease),
+      background-color var(--dur) var(--ease);
+  }
+
+  .head__bars span:nth-child(1) {
+    top: 0;
+  }
+
+  .head__bars span:nth-child(2) {
+    top: 50%;
+  }
+
+  .head__bars span:nth-child(3) {
+    top: 100%;
+  }
+
+  .head__toggle:hover {
+    color: var(--accent);
+  }
+
+  /* Open, the three rules close into a cross: the middle one goes, the outer
+     two meet in the centre. */
+  [data-nav][data-open] .head__bars span:nth-child(1) {
+    transform: translateY(0.3125rem) rotate(45deg);
+  }
+
+  [data-nav][data-open] .head__bars span:nth-child(2) {
+    opacity: 0;
+  }
+
+  [data-nav][data-open] .head__bars span:nth-child(3) {
+    transform: translateY(-0.3125rem) rotate(-45deg);
+  }
+
+  /* Present for a screen reader, absent for the eye. */
+  .vh {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* The scrim is laid out only inside the breakpoint below. */
+  .head__scrim {
+    display: none;
+  }
+
+  @media (max-width: 34rem) {
+    /* html.js is set by the inline script in Base.astro's head, so it is
+       already there at first paint. Without it none of this applies and the
+       nav keeps its plain wrapping behaviour. */
+    :global(html.js) [data-nav] .head__toggle {
+      display: flex;
+    }
+
+    /* ----------------------------------------------------------------
+       The panel
+
+       position: fixed takes it out of the header's flow, which is the
+       whole point: the running head keeps its single line and the page
+       under it does not move when the menu opens.
+    ---------------------------------------------------------------- */
+    :global(html.js) [data-nav] .head__nav {
+      position: fixed;
+      inset: 0 0 0 auto;
+      z-index: 2;
+      width: min(17rem, 78vw);
+      flex-direction: column;
+      /* Links shrink to their own text so the current-page rule underlines the
+         words rather than running the width of the panel. */
+      align-items: flex-start;
+      gap: 0;
+      /* Clear of the button, which sits above the panel. */
+      padding: 5.25rem var(--gutter) var(--sp-lg);
+      background: var(--paper);
+      border-left: 1px solid var(--ink-18);
+      /* 101% so the border rides off the edge with it. */
+      transform: translateX(101%);
+      /* visibility, not display: it takes the closed panel out of the tab
+         order and off the accessibility tree, and unlike display it can be
+         delayed until the slide has finished. */
+      visibility: hidden;
+      transition:
+        transform var(--dur) var(--ease),
+        visibility 0s linear var(--dur);
+    }
+
+    :global(html.js) [data-nav][data-open] .head__nav {
+      transform: none;
+      visibility: visible;
+      transition:
+        transform var(--dur) var(--ease),
+        visibility 0s;
+    }
+
+    :global(html.js) [data-nav] .head__nav a {
+      margin-block: 0.7rem;
+      position: relative;
+    }
+
+    /* The words are only 23px tall, and margin is not tappable — that made the
+       site's whole primary navigation a set of 23px strips. The target is an
+       overlay rather than padding, because padding would push the
+       current-page underline away from the words it underlines. It reaches
+       exactly half the gap above and below, so adjacent links meet without
+       overlapping, and out to the panel's padding on either side. */
+    :global(html.js) [data-nav] .head__nav a::after {
+      content: '';
+      position: absolute;
+      top: -0.7rem;
+      bottom: -0.7rem;
+      left: -0.75rem;
+      right: -0.75rem;
+    }
+
+    :global(html.js) [data-nav] .head__scrim {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: var(--ink);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity var(--dur) var(--ease),
+        visibility 0s linear var(--dur);
+    }
+
+    :global(html.js) [data-nav][data-open] .head__scrim {
+      opacity: 0.3;
+      visibility: visible;
+      transition:
+        opacity var(--dur) var(--ease),
+        visibility 0s;
+    }
+  }
+
+  /* Below the hamburger's own breakpoint this only reaches the no-JS fallback,
+     where the three links still have to share a line. */
   @media (max-width: 30rem) {
     .head__nav {
       gap: 1rem;
@@ -85,4 +302,73 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
       letter-spacing: 0.14em;
     }
   }
+
+  /* Asked to hold still, the bars swap straight to the cross and the panel is
+     simply there rather than sliding in. */
+  @media (prefers-reduced-motion: reduce) {
+    .head__bars span,
+    :global(html.js) [data-nav] .head__nav,
+    :global(html.js) [data-nav] .head__scrim {
+      transition: none;
+    }
+  }
 </style>
+
+<script>
+  // The panel covers the page behind a scrim, so it has to behave like one
+  // thing at a time: everything underneath goes inert while it is open, which
+  // is what keeps Tab inside the panel without hand-rolling a focus trap.
+  document.querySelectorAll('[data-nav]').forEach((head) => {
+    const toggle = head.querySelector('[data-nav-toggle]');
+    const panel = head.querySelector('[data-nav-panel]');
+    const scrim = head.querySelector('[data-nav-scrim]');
+    if (!toggle || !panel) return;
+
+
+    const narrow = window.matchMedia('(max-width: 34rem)');
+    // The name is in the header, so it is not covered by the sweep below and
+    // would otherwise stay tabbable behind the scrim.
+    const underneath = [
+      ...document.querySelectorAll('main, footer'),
+      head.querySelector('[data-nav-name]'),
+    ].filter(Boolean);
+
+    function setOpen(open) {
+      head.toggleAttribute('data-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      underneath.forEach((el) => (el.inert = open));
+      // A drawer over a locked page: scrolling the text behind it while it is
+      // open reads as the page coming apart.
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+    }
+
+    toggle.addEventListener('click', (event) => {
+      const open = !head.hasAttribute('data-open');
+      setOpen(open);
+      // Straight into the panel for a keyboard, so the next Tab is the second
+      // link rather than a trip back through the page. Only for a keyboard:
+      // a click carries a non-zero detail, and moving focus on a tap paints a
+      // focus ring on the first link that a touch user never asked for. The
+      // page behind is inert either way, so Tab still lands in the panel.
+      if (open && event.detail === 0) panel.querySelector('a')?.focus();
+    });
+
+    // Escape closes and hands focus back to the button that opened it —
+    // otherwise focus is left on a link that has just been hidden.
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !head.hasAttribute('data-open')) return;
+      setOpen(false);
+      toggle.focus();
+    });
+
+    // The scrim is the whole page as far as a press is concerned.
+    scrim?.addEventListener('click', () => setOpen(false));
+
+    // Widened past the breakpoint the nav is a row again and the button is
+    // gone; leaving aria-expanded="true" on a control nobody can see would be
+    // a lie to a screen reader, and the page would stay locked and inert.
+    narrow.addEventListener('change', (event) => {
+      if (!event.matches) setOpen(false);
+    });
+  });
+</script>

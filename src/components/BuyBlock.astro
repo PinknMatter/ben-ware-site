@@ -1,8 +1,9 @@
 ---
 // Where to buy.
 //
-// One real button, which goes straight to Amazon, and the other sellers listed
-// under it as hairline rows — the publisher first. If a title has no confirmed
+// One real button, which goes straight to Amazon, and the other sellers beside
+// it in a column — the publisher first, anything else directly beneath it, in
+// the order the book's `buy` list gives them. If a title has no confirmed
 // Amazon listing the button falls back to the publisher rather than being
 // rendered dead, and the publisher is then not repeated in the list below.
 //
@@ -22,8 +23,8 @@ const amazon = rows.find((row) => row.label === 'Amazon' && row.url);
 const primary = amazon ?? rows.find((row) => row.url) ?? null;
 const rest = rows.filter((row) => row !== primary);
 
-// The publisher sits beside the button; anything else — a translation, a
-// listing still to be confirmed — goes underneath.
+// The publisher heads the column beside the button; anything else — a
+// translation, a listing still to be confirmed — is stacked under it.
 const beside = rest.find((row) => row.label === 'Publisher') ?? null;
 const below = rest.filter((row) => row !== beside);
 ---
@@ -43,43 +44,45 @@ const below = rest.filter((row) => row !== beside);
         </a>
       )
     }
-    {
-      beside &&
-        (beside.url ? (
-          <a class="buy__aside ext" href={beside.url} target="_blank" rel="noopener">
-            {beside.label}
-          </a>
-        ) : (
-          <span class="buy__aside buy__aside--pending" data-todo={beside.todo}>
-            {beside.label}
-          </span>
-        ))
-    }
-  </div>
-
-  {
-    below.length > 0 && (
-      <ul class="buy__list">
-        {below.map((row) =>
-          row.url ? (
-            <li>
-              <a class="buy__row" href={row.url} target="_blank" rel="noopener">
-                <span class="buy__label ext">{row.label}</span>
-                {row.note && <span class="buy__note">{row.note}</span>}
-              </a>
-            </li>
+    <div class="buy__sellers">
+      {
+        beside &&
+          (beside.url ? (
+            <a class="buy__aside ext" href={beside.url} target="_blank" rel="noopener">
+              {beside.label}
+            </a>
           ) : (
-            <li>
-              <span class="buy__row buy__row--pending" data-todo={row.todo}>
-                <span class="buy__label">{row.label}</span>
-                <span class="buy__note">link to follow</span>
-              </span>
-            </li>
-          )
-        )}
-      </ul>
-    )
-  }
+            <span class="buy__aside buy__aside--pending" data-todo={beside.todo}>
+              {beside.label}
+            </span>
+          ))
+      }
+
+      {
+        below.length > 0 && (
+          <ul class="buy__list">
+            {below.map((row) =>
+              row.url ? (
+                <li>
+                  <a class="buy__row" href={row.url} target="_blank" rel="noopener">
+                    <span class="buy__label ext">{row.label}</span>
+                    {row.note && <span class="buy__note">{row.note}</span>}
+                  </a>
+                </li>
+              ) : (
+                <li>
+                  <span class="buy__row buy__row--pending" data-todo={row.todo}>
+                    <span class="buy__label">{row.label}</span>
+                    <span class="buy__note">link to follow</span>
+                  </span>
+                </li>
+              )
+            )}
+          </ul>
+        )
+      }
+    </div>
+  </div>
 </div>
 
 <style>
@@ -88,13 +91,20 @@ const below = rest.filter((row) => row !== beside);
     max-width: 22rem;
   }
 
-  /* Button and publisher on one line; in a column too narrow for both — the
-     jacket column on the catalogue — the publisher wraps under it. */
+  /* Button and sellers on one line; in a column too narrow for both — the
+     jacket column on the catalogue — the sellers wrap under it. */
   .buy__primary {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.75rem 1.25rem;
+  }
+
+  /* The publisher and everything after it in one column, so a translation sits
+     under the publisher rather than under the button. */
+  .buy__sellers {
+    flex: 1 1 7rem;
+    min-width: 0;
   }
 
   /* Solid ink on paper — the one stamped element on the site, so it reads as
@@ -152,13 +162,13 @@ const below = rest.filter((row) => row !== beside);
      from the button by hairlines. */
   .buy__list {
     list-style: none;
-    margin: var(--sp-sm) 0 0;
+    margin: 0.15rem 0 0;
     padding: 0;
   }
 
-  /* In the narrow column beside a jacket there is not room for a label and its
-     note side by side, so the note drops to its own line rather than breaking
-     "German edition" across two. */
+  /* There is rarely room for a label and its note side by side in this column,
+     so the note drops to its own line rather than breaking "German edition"
+     across two — and once it is on its own line it aligns under the label. */
   .buy__row {
     display: flex;
     align-items: baseline;
@@ -190,11 +200,9 @@ const below = rest.filter((row) => row !== beside);
   }
 
   .buy__note {
-    margin-left: auto;
     font-style: italic;
     font-size: 0.8125rem;
     color: var(--ink-60);
-    text-align: right;
   }
 
   .buy__row--pending .buy__label {

@@ -45,9 +45,15 @@ const { title, description, socialTitle, schema, image } = Astro.props;
       const DURATION = 0.8;
       const EASE = 'cubic-bezier(0.65, 0, 0.35, 1)';
 
-      // Rendered length in screen pixels = path length in user units × the
-      // scale the SVG is displayed at. That product is the dash we need.
+      // stroke-dasharray is expressed in whatever units the stroke is drawn in.
+      // With vector-effect: non-scaling-stroke that is SCREEN pixels, while
+      // getTotalLength() always reports user units — hence the scale factor.
+      // An ordinary stroke (the signature's reveal mask) is already in user
+      // units and must not be scaled, or its dash is out by the display scale.
       function dashLength(svg, path) {
+        if (getComputedStyle(path).vectorEffect !== 'non-scaling-stroke') {
+          return path.getTotalLength();
+        }
         const box = svg.getBoundingClientRect();
         const viewBoxWidth = svg.viewBox.baseVal.width || box.width;
         const scale = viewBoxWidth ? box.width / viewBoxWidth : 1;

@@ -54,15 +54,20 @@ export const representation = {
   todo: 'enquiries-email',
 };
 
-// The signature under the title block. Ben has redrawn the BW monogram in his
-// own hand and is sending a scan; drop the file into public/images/ and put its
-// path here, and every use of <Signature /> switches over. While this is null
-// the site falls back to the drawn stand-in, which is NOT Ben's autograph.
+// The signature under the title block.
+//
+// Ben's own autograph is now set as vector curves inside Signature.astro,
+// centreline-traced from the photograph he sent, so it draws on like
+// handwriting. Leave src null to use it.
+//
+// src is only for a raster scan, if a flatbed one ever supersedes the photo:
+// drop the file into public/images/, put its path and pixel size here, and
+// every <Signature /> switches over — but a raster signature is a flat image
+// and does NOT animate.
 export const signature = {
   src: null, // e.g. '/images/ben-ware-signature.png'
   width: 0,
   height: 0,
-  todo: 'signature-scan',
 };
 
 // Fallback social/preview image until artwork is supplied.
