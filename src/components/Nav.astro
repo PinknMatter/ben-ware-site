@@ -69,6 +69,33 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
 </header>
 
 <style>
+  /* --------------------------------------------------------------------
+     The running head follows you down the page — but gets out of the way
+     while you read on, and comes back the moment you scroll up. At every
+     width: it is the same bargain on a laptop as on a phone.
+  --------------------------------------------------------------------- */
+
+  .head {
+    position: sticky;
+    top: 0;
+    /* Above the page, and high enough that the panel and scrim inside it —
+       painted in this element's stacking context — clear the content too. */
+    z-index: 4;
+    /* Sticky over text needs something to sit on. */
+    background: var(--paper);
+    transition: transform var(--dur) var(--ease);
+  }
+
+  /* Only the HIDDEN state carries a transform, and deliberately so: a
+     transformed element becomes the containing block for fixed descendants,
+     and the slide-out panel inside this header is fixed to the VIEWPORT. Even
+     translateY(0) in the shown state would be enough to reparent it — so the
+     shown state declares no transform at all, and the script never hides the
+     head while the panel is open. */
+  [data-nav][data-hidden] {
+    transform: translateY(-100%);
+  }
+
   .head__inner {
     display: flex;
     align-items: baseline;
@@ -306,6 +333,7 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
   /* Asked to hold still, the bars swap straight to the cross and the panel is
      simply there rather than sliding in. */
   @media (prefers-reduced-motion: reduce) {
+    .head,
     .head__bars span,
     :global(html.js) [data-nav] .head__nav,
     :global(html.js) [data-nav] .head__scrim {
@@ -336,6 +364,10 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
     function setOpen(open) {
       head.toggleAttribute('data-open', open);
       toggle.setAttribute('aria-expanded', String(open));
+      // Never hidden while the panel is out: the head would carry its own
+      // close button off the top of the screen, and its transform would
+      // reparent the fixed panel onto itself.
+      if (open) head.removeAttribute('data-hidden');
       underneath.forEach((el) => (el.inert = open));
       // A drawer over a locked page: scrolling the text behind it while it is
       // open reads as the page coming apart.
@@ -368,7 +400,43 @@ const here = (path.startsWith(base) ? path.slice(base.length) : path) || '/';
     // gone; leaving aria-expanded="true" on a control nobody can see would be
     // a lie to a screen reader, and the page would stay locked and inert.
     narrow.addEventListener('change', (event) => {
-      if (!event.matches) setOpen(false);
+      if (!event.matches) {
+        setOpen(false);
+        head.removeAttribute('data-hidden');
+      }
     });
+
+    // Hide the running head while the reader scrolls on, bring it back the
+    // moment they scroll up. The CSS for this only exists below 34rem, so the
+    // attribute is harmless at any other width.
+    let lastY = Math.max(0, window.scrollY);
+    let queued = false;
+
+    function onScroll() {
+      queued = false;
+      const y = Math.max(0, window.scrollY);
+      const delta = y - lastY;
+      // A fingertip resting on the glass moves a pixel or two; ignore that,
+      // and do not bank it — lastY only moves when the reader does.
+      if (Math.abs(delta) < 6) return;
+      head.toggleAttribute(
+        'data-hidden',
+        // Never at the top of the page: there is nothing to get out of the way
+        // of, and the head sliding off as you leave the first line reads as a
+        // glitch rather than as a choice.
+        delta > 0 && y > head.offsetHeight && !head.hasAttribute('data-open')
+      );
+      lastY = y;
+    }
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(onScroll);
+      },
+      { passive: true }
+    );
   });
 </script>

@@ -33,6 +33,14 @@ export function getStaticPaths() {
   }));
 }
 
+// Arrows carry U+FE0E, the text presentation selector, after them. Libre
+// Caslon has no arrow glyph, so the character comes from a fallback font — and
+// on iOS and Android that fallback is the emoji font, which renders it as a
+// colour emoji mid-sentence. FE0E asks explicitly for the text form.
+const ARROW_LEFT = '←︎';
+const ARROW_DOWN = '↓︎';
+const ARROW_UP = '↑︎';
+
 const { book, prev, next } = Astro.props;
 const t = splitTitle(book.title);
 
@@ -71,7 +79,7 @@ const schema = {
   image={book.cover ?? undefined}
 >
   <p class="crumb">
-    <a class="link link--sm" href={u('/books')}>← All books</a>
+    <a class="link link--sm" href={u('/books')}>{ARROW_LEFT} All books</a>
   </p>
 
   <!-- ------------------------------------------------------------------
@@ -157,9 +165,9 @@ const schema = {
               aria-expanded="false"
               aria-controls={`more-praise-${book.slug}`}
               data-praise-toggle
-              data-label-closed={`Read all ${book.endorsements.length} endorsements ↓`}
+              data-label-closed={`Read all ${book.endorsements.length} endorsements ${ARROW_DOWN}`}
             >
-              {`Read all ${book.endorsements.length} endorsements ↓`}
+              {`Read all ${book.endorsements.length} endorsements ${ARROW_DOWN}`}
             </button>
           </div>
         )}
@@ -413,7 +421,7 @@ const schema = {
       const expanded = button.getAttribute('aria-expanded') === 'true';
       list.hidden = expanded;
       button.setAttribute('aria-expanded', String(!expanded));
-      button.textContent = expanded ? closed : 'Show less ↑';
+      button.textContent = expanded ? closed : `Show less ↑︎`;
     });
   });
 </script>

@@ -223,7 +223,12 @@ a:hover {
 
 /* Trailing marker for links that leave the site. */
 .ext::after {
-  content: '\2197';
+  /* U+2197 followed by U+FE0E, the text presentation selector. Libre Caslon
+     has no arrow, so the glyph comes from a fallback — and on iOS and Android
+     that fallback is the emoji font, which renders it as a colour emoji. FE0E
+     asks explicitly for the text form. Every other arrow on the site carries
+     it too; see the ARROW constants in books/[slug].astro. */
+  content: '\2197\FE0E';
   display: inline-block;
   margin-left: 0.3em;
   font-size: 0.8em;
