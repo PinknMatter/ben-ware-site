@@ -1,21 +1,19 @@
 ---
 // Writing & Media.
 //
-// The essays are grouped under their year, with the year set large in the left
-// margin — a spine down the page, so twelve pieces read as a body of work
-// rather than as one long run of rows. Interviews and recorded talks follow in
-// their own registers.
+// A selection of recent essays, then interviews and recorded talks in their
+// own registers. Titles only: Ben asked for the dates off every list, so the
+// year spine that used to group the essays has gone with them.
 import Page from '../layouts/Page.astro';
 import Flourish from '../components/Flourish.astro';
-import { writing, interviews, videos, groupByYear } from '../data/writing.js';
+import { writing, interviews, videos } from '../data/writing.js';
 import { u } from '../lib/url.js';
 
-const years = groupByYear(writing);
 
 const sections = [
-  { id: 'essays', label: 'Essays & papers', count: writing.length },
+  { id: 'essays', label: 'Recent essays', count: writing.length },
   { id: 'interviews', label: 'Interviews', count: interviews.length },
-  { id: 'talks', label: 'Talks & lectures', count: videos.length },
+  { id: 'talks', label: 'Recent talks & lectures', count: videos.length },
 ];
 ---
 
@@ -26,10 +24,6 @@ const sections = [
 >
   <div class="page-head">
     <h1 class="page-head__title">Writing</h1>
-    <p class="lede">
-      Essays and papers for <em>e-flux</em>, <em>Lit Hub</em>, <em>TANK</em>, the
-      <em>Los Angeles Review of Books</em> and elsewhere, with interviews and recorded talks.
-    </p>
   </div>
 
   <!-- A contents line, so the three registers are visible before you scroll. -->
@@ -51,55 +45,45 @@ const sections = [
   <Flourish hand={0} />
 
   <!-- ------------------------------------------------------------------
-       Essays and papers, on a year spine.
+       Recent essays.
   ------------------------------------------------------------------- -->
   <section class="section" id="essays" aria-labelledby="h-essays">
-    <h2 class="label" id="h-essays">Essays &amp; papers</h2>
+    <h2 class="label" id="h-essays">Recent essays</h2>
 
-    <div class="years">
+    <ul class="entries">
       {
-        years.map((group) => (
-          <div class="year">
-            <h3 class="year__no" aria-label={group.year === 'n.d.' ? 'No date' : group.year}>
-              {group.year}
-            </h3>
-            <ul class="entries year__items">
-              {group.items.map((item) =>
-                item.url ? (
-                  <li>
-                    <a
-                      class="entry entry--plain"
-                      href={u(item.url)}
-                      target="_blank"
-                      rel="noopener"
-                      data-todo={item.todo}
-                    >
-                      <span class="entry__text">
-                        <span class="entry__title">{item.title}</span>
-                        {item.venue && <span class="entry__meta">{item.venue}</span>}
-                      </span>
-                      <span class="tag">{item.pdf ? 'PDF' : item.form}</span>
-                    </a>
-                  </li>
-                ) : (
-                  <li>
-                    {/* Nothing to link to yet — this reads as a catalogue entry
-                        awaiting its reference, not as a dead link. */}
-                    <span class="entry entry--plain entry--pending" data-todo={item.todo}>
-                      <span class="entry__text">
-                        <span class="entry__title">{item.title}</span>
-                        <span class="entry__meta">Forthcoming</span>
-                      </span>
-                      <span class="tag">{item.form}</span>
-                    </span>
-                  </li>
-                )
-              )}
-            </ul>
-          </div>
-        ))
+        writing.map((item) =>
+          item.url ? (
+            <li>
+              <a
+                class="entry entry--plain"
+                href={u(item.url)}
+                target="_blank"
+                rel="noopener"
+                data-todo={item.todo}
+              >
+                <span class="entry__text">
+                  <span class="entry__title">{item.title}</span>
+                  {item.venue && <span class="entry__meta">{item.venue}</span>}
+                </span>
+                <span class="tag">{item.pdf ? 'PDF' : item.form}</span>
+              </a>
+            </li>
+          ) : (
+            <li>
+              {/* Nothing to link to yet — this reads as a catalogue entry
+                  awaiting its reference, not as a dead link. */}
+              <span class="entry entry--plain entry--pending" data-todo={item.todo}>
+                <span class="entry__text">
+                  <span class="entry__title">{item.title}</span>
+                </span>
+                <span class="tag">{item.form}</span>
+              </span>
+            </li>
+          )
+        )
       }
-    </div>
+    </ul>
   </section>
 
   <Flourish hand={1} />
@@ -118,10 +102,6 @@ const sections = [
               <span class="talk__venue label">{item.venue}</span>
               <span class="talk__title">{item.title}</span>
               {item.with && <span class="talk__with">{item.with}</span>}
-              <span class="talk__year tag" data-todo={item.todo}>
-                {/* The source material carries no date for either interview. */}
-                {item.year ?? 'Undated'}
-              </span>
             </a>
           </li>
         ))
@@ -132,13 +112,12 @@ const sections = [
   <Flourish hand={2} />
 
   <section class="section" id="talks" aria-labelledby="h-talks">
-    <h2 class="label" id="h-talks">Talks &amp; lectures</h2>
+    <h2 class="label" id="h-talks">Recent talks &amp; lectures</h2>
     <ul class="entries">
       {
         videos.map((item) => (
           <li>
-            <a class="entry" href={item.url} target="_blank" rel="noopener">
-              <span class="entry__year">{item.year}</span>
+            <a class="entry entry--plain" href={item.url} target="_blank" rel="noopener">
               <span class="entry__text">
                 <span class="entry__title">{item.title}</span>
                 {(item.venue || item.with) && (
@@ -187,54 +166,6 @@ const sections = [
 
   .jump__count {
     margin-left: 0.6em;
-    color: var(--ink-25);
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* ------------------------------------------------------------------
-     The year spine
-  ------------------------------------------------------------------ */
-
-  .years {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-lg);
-  }
-
-  .year {
-    display: grid;
-    grid-template-columns: 6rem minmax(0, 1fr);
-    gap: var(--sp-md);
-    align-items: start;
-  }
-
-  /* Set large and pale: structure you read past, not a heading that competes
-     with the titles beside it. */
-  .year__no {
-    font-family: var(--display);
-    font-size: clamp(1.5rem, 3vw, 2.25rem);
-    line-height: 1;
-    color: var(--ink-25);
-    font-variant-numeric: tabular-nums;
-    padding-top: 0.9rem;
-  }
-
-  .year__items {
-    border-top: 1px solid var(--ink-18);
-  }
-
-  @media (max-width: 40rem) {
-    .year {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0.25rem;
-    }
-
-    .year__no {
-      padding-top: 0;
-      font-size: 1.25rem;
-    }
-  }
-
   /* ------------------------------------------------------------------
      Interviews — a different shape from the ruled rows, so the page does
      not read as three of the same table.
@@ -286,8 +217,4 @@ const sections = [
     color: var(--ink-60);
   }
 
-  .talk__year {
-    display: block;
-    margin-top: var(--sp-md);
-  }
 </style>

@@ -13,10 +13,12 @@
 //   praiseShort  trimmed quotes for the homepage carousel (client-supplied)
 //   endorsements the full praise, longest-standing first
 //
-// Covers are the client's low-resolution scans (all 371px tall, varying
-// widths), so they are laid out to a common HEIGHT rather than a common width
-// and are never rendered larger than their native pixels. Higher-resolution
-// scans can be dropped in without a markup change.
+// Covers vary in width and are laid out to a common HEIGHT rather than a
+// common width, which is how a shelf actually works: books share a shelf line,
+// not a width. Dialectic of the Ladder really is the narrowest of them — the
+// publisher's own product image has the same proportions — so it reads as
+// narrower on the shelf because it is. Higher-resolution scans can be dropped
+// in without a markup change.
 
 export const books = [
   {
@@ -80,12 +82,23 @@ export const books = [
     year: '2017',
     role: null,
     cover: '/covers/living-wrong-life.avif',
+    // The foot of this jacket is white, so on white paper its bottom edge
+    // dissolves and the cover looks like it is floating. A hairline gives it
+    // back its edge. No other jacket needs one.
+    coverEdge: true,
     publisherUrl: 'https://link.springer.com/book/10.1057/978-1-137-55503-8',
     buy: [
       { label: 'Publisher', url: 'https://link.springer.com/book/10.1057/978-1-137-55503-8' },
       { label: 'Amazon', url: 'https://www.amazon.co.uk/Modernism-Ethics-Political-Imagination-Discourse/dp/134971710X' },
     ],
     hook: 'A bold reassessment of modernism and ethics: modernist literature and philosophy as a crucial point of reference for today’s emancipatory struggles.',
+    // The line the catalogue pulls out. Ben chose it and cut it himself; left
+    // to itself the page takes the shortest endorsement, which was the Key
+    // Words one. The full Lecercle quote is still below in `endorsements`.
+    pullQuote: {
+      quote: 'Ben Ware applies his vast philosophical and literary culture to the task, and the resulting analyses are superb',
+      source: 'Jean-Jacques Lecercle, author of <em>A Marxist Philosophy of Language</em>',
+    },
     blurb: [
       'In this groundbreaking new study, Ben Ware carries out a bold reassessment of the relationship between modernism and ethics, arguing that modernist literature and philosophy offer more than simply a snapshot of the moral conflicts of the past: they provide a crucial point of reference for today’s emancipatory struggles.',
       'Investigating ethical ideas in Wittgenstein, Beckett, Kierkegaard, Kant, Cavell, Marx, Henry James and Lacan, Ware demonstrates how these thinkers can bring us to a new understanding of a constellation of issues which contemporary radical thought must re-visit: utopia, repetition, perfectionism, subtraction, negativity, critique, absence, duty, revolution and political love.',

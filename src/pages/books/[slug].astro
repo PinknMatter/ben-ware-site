@@ -101,17 +101,6 @@ const schema = {
         {t.main}{t.sub && <span class="title-page__sub">{t.sub}</span>}
       </h1>
 
-      {
-        book.publishedAs && (
-          /* Ben's own title is the one the site sets; Palgrave inverted it on
-             the jacket, and he uses his original whenever he describes the
-             book. Both are recorded so a search for either finds it. */
-          <p class="title-page__alt">
-            Published by {book.publisher} as <em>{book.publishedAs}</em>
-          </p>
-        )
-      }
-
       {forthcoming && <p class="tag title-page__flag">Forthcoming</p>}
 
       <p class="lede title-page__hook">{book.hook}</p>
@@ -238,11 +227,6 @@ const schema = {
     color: var(--ink-70);
   }
 
-  .title-page__alt {
-    margin: 0.8rem 0 0;
-    font-size: 0.9375rem;
-    color: var(--ink-60);
-  }
 
   .title-page__flag {
     margin: 0.9rem 0 0;

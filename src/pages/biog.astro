@@ -111,12 +111,11 @@ const works = [...books].sort((a, b) => Number(b.year) - Number(a.year));
           {
             affiliations.map((a) => (
               <li>
-                <a class="link link--sm" href={a.url} target="_blank" rel="noopener" data-todo={a.todo}>
-                  {a.label}
+                {/* The institution first, then what he does there. */}
+                <a class="link link--sm" href={a.url} target="_blank" rel="noopener">
+                  {a.org}
                 </a>
-                <span class="margin-list__meta">
-                  {a.role}, {a.org}
-                </span>
+                <span class="margin-list__meta">{a.role}</span>
               </li>
             ))
           }
@@ -136,9 +135,6 @@ const works = [...books].sort((a, b) => Number(b.year) - Number(a.year));
             <span class="margin-list__meta">{representation.agent}</span>
           </li>
         </ul>
-        <p class="margin-note" data-todo={representation.todo}>
-          Speaking, press and rights enquiries go through the agency; a direct address will follow.
-        </p>
       </section>
     </aside>
   </div>
@@ -156,10 +152,7 @@ const works = [...books].sort((a, b) => Number(b.year) - Number(a.year));
               <span class="entry__year">{book.year}</span>
               <span class="entry__text">
                 <span class="entry__title">{book.title}</span>
-                <span class="entry__meta">
-                  {book.publisher}
-                  {book.role ? ` — as ${book.role}` : ''}
-                </span>
+                <span class="entry__meta">{book.publisher}</span>
               </span>
             </a>
           </li>
@@ -232,12 +225,6 @@ const works = [...books].sort((a, b) => Number(b.year) - Number(a.year));
     color: var(--ink-60);
   }
 
-  .margin-note {
-    margin: 0;
-    font-size: 0.875rem;
-    line-height: 1.55;
-    color: var(--ink-60);
-  }
 
   /* Narrow leaf: the portrait leads, then the life, then the apparatus. */
   @media (max-width: 51rem) {

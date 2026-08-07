@@ -71,13 +71,6 @@ const schema = {
           loading="eager"
           fetchpriority="high"
         />
-
-        <!-- Signed across the corner of the plate, the way a print is. It sits
-             INSIDE the mount because the mount is what it is positioned
-             against, and it hangs OUTWARD from the corner rather than onto the
-             photograph: the bottom right of this portrait is his black coat,
-             and near-black ink on it would simply disappear. -->
-        <Signature class="frontis__signature" data-intro="3" />
       </span>
 
       <!-- A plate caption credits the engraver; here it wants the
@@ -103,6 +96,8 @@ const schema = {
         as the lens through which to read the present. Co-Director of the Centre for Philosophy and
         Art at King’s College London.
       </p>
+
+      <Signature data-intro="3" />
 
     </div>
   </section>
@@ -176,13 +171,12 @@ const schema = {
   <Flourish hand={1} />
 
   <section class="section" id="writing" aria-labelledby="h-writing">
-    <h2 class="label" id="h-writing">Writing</h2>
+    <h2 class="label" id="h-writing">Recent essays</h2>
     <ol class="entries">
       {
         selectedWriting.map((item) => (
           <li>
-            <a class="entry" href={u(item.url)} target="_blank" rel="noopener">
-              <span class="entry__year">{item.year}</span>
+            <a class="entry entry--plain" href={u(item.url)} target="_blank" rel="noopener">
               <span class="entry__text">
                 <span class="entry__title">{item.title}</span>
                 <span class="entry__meta">{item.venue}</span>
@@ -194,7 +188,7 @@ const schema = {
       }
     </ol>
     <p class="more">
-      <a class="link link--sm" href={u('/writing')}>All writing</a>
+      <a class="link link--sm" href={u('/writing')}>More</a>
     </p>
   </section>
 
@@ -206,14 +200,7 @@ const schema = {
       {
         media.map((item) => (
           <li>
-            <a class="entry" href={item.url} target="_blank" rel="noopener">
-              {item.year ? (
-                <span class="entry__year">{item.year}</span>
-              ) : (
-                <span class="entry__year entry__year--nd" data-todo="interview-dates">
-                  n.d.
-                </span>
-              )}
+            <a class="entry entry--plain" href={item.url} target="_blank" rel="noopener">
               <span class="entry__text">
                 <span class="entry__title">{item.title}</span>
                 {item.meta && <span class="entry__meta">{item.meta}</span>}
@@ -224,7 +211,7 @@ const schema = {
       }
     </ul>
     <p class="more">
-      <a class="link link--sm" href={u('/writing#interviews')}>All interviews &amp; talks</a>
+      <a class="link link--sm" href={u('/writing#interviews')}>More interviews and talks</a>
     </p>
   </section>
 
@@ -232,12 +219,11 @@ const schema = {
     <h2 class="label" id="h-enquiries">Enquiries</h2>
     <div>
       <p class="lede">
-        For speaking, press and rights, Ben is represented by {representation.agent} at
+        Ben is represented by {representation.agent} at
         <a class="link" href={representation.agencyUrl} target="_blank" rel="noopener"
           ><span class="nowrap">{representation.agency}</span></a
         >.
       </p>
-      <p class="enquiries__note" data-todo={representation.todo}>A direct address will follow.</p>
     </div>
   </section>
 </Page>
@@ -259,33 +245,6 @@ const schema = {
      hair of contrast — the warmth it wanted on ivory would read as a cast. */
   .frontis__plate img {
     filter: contrast(1.03);
-  }
-
-  /* The mount, not the figure, is what the signature is hung off — the figure
-     also contains the caption, so its bottom edge is below the plate. */
-  .frontis__plate .plate__mount {
-    position: relative;
-  }
-
-  .frontis__signature {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    margin-top: 0;
-    /* Hung off the corner in fractions of the signature's OWN size, so the
-       overlap holds at every width. Offsets in vw drift instead: the measure
-       stops growing at 62rem while vw does not, so a placement tuned at one
-       width slides off the frame at another.
-       The mark crosses the mount's white border but not the print: the bottom
-       right of the photograph is his black coat, and near-black ink on it
-       would simply disappear. Checked by testing the INK — the box's top left
-       corner is empty, so a rectangle-overlap test reads as crossing when
-       nothing is actually touching. */
-    /* A few degrees clockwise, because a hand signing the corner of a print
-       does not hold it square to the mount. */
-    transform: translate(80%, 39%) rotate(9deg);
-    /* Above the mount so where it crosses the frame it reads as ink on top. */
-    z-index: 1;
   }
 
   .title__name {
@@ -462,12 +421,6 @@ const schema = {
     padding-top: var(--sp-2xl);
   }
 
-  .enquiries__note {
-    margin: var(--sp-md) 0 0;
-    font-style: italic;
-    font-size: 0.9375rem;
-    color: var(--ink-60);
-  }
 
   /* ------------------------------------------------------------------
      Narrow leaf: the plate leads, then the type.
@@ -485,15 +438,6 @@ const schema = {
 
     .frontis__plate {
       width: min(100%, 20rem);
-    }
-
-    /* Stacked, the plate is as wide as the page allows, so its right edge IS
-       the gutter — anything hung off that corner hangs off the screen and the
-       whole page scrolls sideways. Below this width the signature drops under
-       the plate instead, still right-aligned and still clear of the print,
-       which needs no room to the side at all. */
-    .frontis__signature {
-      transform: translate(0, 96%) rotate(9deg);
     }
   }
 

@@ -22,36 +22,40 @@ export const site = {
   ],
 };
 
-// Institutions. Kept together because two of the three still want confirming
-// with the client, and it is easier to check a list than to hunt the markup.
+// Institutions.
+//
+// `org` leads and `role` sits under it, which is how Ben asked for the
+// appointments to read: the institution first, then what he does there.
+// `label` is the shorter form the colophon uses, where there is no room to set
+// both lines.
+//
+// The KCL address was 404ing on ...centre-for-philosophy-and-visual-arts; the
+// centre's own page is ...centre-for-philosophy-and-art, and "Centre for
+// Philosophy and Art" is the name it publishes itself under.
 export const affiliations = [
   {
-    label: 'Centre for Philosophy & Art',
-    role: 'Co-Director; Senior Research Fellow in Philosophy',
+    label: 'KCL Centre for Philosophy & Art',
+    role: 'Co-Director of the Centre for Philosophy & Art; Senior Research Fellow in Philosophy',
     org: 'King’s College London',
-    url: 'https://www.kcl.ac.uk/research/centre-for-philosophy-and-visual-arts',
-    todo: 'verify-kcl-url',
+    url: 'https://www.kcl.ac.uk/research/centre-for-philosophy-and-art',
   },
   {
     label: 'BICAR',
     role: 'Faculty',
-    org: 'Beirut Institute for Critical Analysis and Research',
+    org: 'Bombay Institute for Critical Analysis and Research',
     url: 'https://www.bicar.org',
-    todo: 'verify-bicar-url',
   },
 ];
 
-// Representation. The old markup pointed at the apex domain, which is what Ben
-// reported as broken; www.cwagency.co.uk is the address that actually answers.
-// C&W do not publish a stable per-agent URL we could verify, so Clare's name is
-// set as text and the link goes to the agency.
+// Representation.
+//
+// The host has flipped since this was last checked: www.cwagency.co.uk no
+// longer resolves at all and the apex does. C&W publish no stable per-agent
+// page, so Clare's name is set as text and the link goes to the agency.
 export const representation = {
   agent: 'Clare Conville',
   agency: 'C&W Agency',
-  agencyUrl: 'https://www.cwagency.co.uk/',
-  // A direct enquiries address is still to come from the client.
-  email: null,
-  todo: 'enquiries-email',
+  agencyUrl: 'https://cwagency.co.uk/',
 };
 
 // The signature under the title block.

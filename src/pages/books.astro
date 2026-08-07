@@ -48,10 +48,6 @@ const schema = {
 >
   <div class="page-head">
     <h1 class="page-head__title">Books</h1>
-    <p class="lede">
-      Three books on modernism, ethics and the end of the world, and two volumes on Francis Bacon
-      edited with the Estate of Francis Bacon.
-    </p>
   </div>
 
   <!-- The contents, set as a shelf: jackets bottom-aligned on a shelf line,
@@ -65,7 +61,6 @@ const schema = {
             <a class="shelf__item" href={u(`/books/${book.slug}`)}>
               <BookCover book={book} decorative />
               <span class="shelf__title">{book.shortTitle}</span>
-              <span class="shelf__year">{book.year}</span>
             </a>
           </li>
         ))
@@ -87,9 +82,12 @@ const schema = {
 
         {group.works.map((book, i) => {
           const t = splitTitle(book.title);
-          // The most quotable line, not whichever happens to be first — a
-          // sixty-word paragraph set as a pull quote is not a pull quote.
-          const praise = [...book.endorsements].sort((a, b) => a.quote.length - b.quote.length)[0];
+          // A book may name its own pull quote; otherwise take the most
+          // quotable line, which is the shortest — a sixty-word paragraph set
+          // as a pull quote is not a pull quote.
+          const praise =
+            book.pullQuote ??
+            [...book.endorsements].sort((a, b) => a.quote.length - b.quote.length)[0];
           return (
             <article class="work" id={book.slug}>
               <div class="work__plate">
@@ -113,12 +111,6 @@ const schema = {
                     {t.sub && <span class="work__sub">{t.sub}</span>}
                   </a>
                 </h3>
-
-                {book.publishedAs && (
-                  <p class="work__alt">
-                    Published as <em>{book.publishedAs}</em>
-                  </p>
-                )}
 
                 <p class="work__hook">{book.hook}</p>
 
@@ -178,13 +170,6 @@ const schema = {
     color: var(--accent);
   }
 
-  .shelf__year {
-    display: block;
-    margin-top: 0.15rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    color: var(--ink-40);
-  }
 
   /* ------------------------------------------------------------------
      Groups and works
@@ -237,13 +222,6 @@ const schema = {
     color: var(--accent);
   }
 
-  /* Only Living Wrong Life Rightly needs this: Ben's title is the one the
-     site sets, and the publisher's inversion is recorded underneath. */
-  .work__alt {
-    margin: 0.6rem 0 0;
-    font-size: 0.875rem;
-    color: var(--ink-60);
-  }
 
   .work__hook {
     margin: var(--sp-md) 0 0;
@@ -301,6 +279,43 @@ const schema = {
   }
 
   @media (max-width: 46rem) {
+    /* Wrapped into two columns the jackets sit small in wide cells, with an
+       orphan on the last row, and the shelf stops reading as a shelf. One
+       line you push along keeps them on a shelf line, at a size worth
+       looking at, with no odd one out. */
+    .shelf ul {
+      --cover-h: clamp(9.5rem, 40vw, 13rem);
+      display: flex;
+      flex-wrap: nowrap;
+      gap: var(--sp-md);
+      overflow-x: auto;
+      /* The gutter, so the first and last jackets are not clipped against the
+         edge of the screen at either end of the run. */
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+      padding-bottom: var(--sp-xs);
+      scroll-snap-type: x proximity;
+      /* Snapping aligns items to the SNAPPORT, which is not inset by padding —
+         so without this the shelf scrolls itself 20px on load to bring the
+         first jacket flush against the edge of the screen, undoing the gutter
+         the padding just established. */
+      scroll-padding-inline: var(--gutter);
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .shelf ul::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shelf li {
+      flex: 0 0 auto;
+      /* The widest jacket sets the column; the narrow ones keep their own
+         proportions inside it rather than being stretched to match. */
+      width: calc(var(--cover-h) * 0.78);
+      scroll-snap-align: start;
+    }
+
     .work {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--sp-md);

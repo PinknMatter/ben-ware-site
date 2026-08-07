@@ -23,7 +23,7 @@ const { book, decorative = false, loading = 'lazy', class: className = '' } = As
 
 {
   book.cover ? (
-    <span class={`cover ${className}`.trim()}>
+    <span class={`cover ${book.coverEdge ? 'cover--edged' : ''} ${className}`.trim()}>
       <img
         src={u(book.cover)}
         alt={decorative ? '' : `Cover of ${book.shortTitle}`}
@@ -66,6 +66,14 @@ const { book, decorative = false, loading = 'lazy', class: className = '' } = As
     max-width: 100%;
     object-fit: contain;
     object-position: left bottom;
+  }
+
+  /* A jacket whose own foot is white dissolves into the page. outline rather
+     than border: it paints over the artwork's edge without adding to the box,
+     so the shelf line stays true. */
+  .cover--edged img {
+    outline: 1px solid var(--ink-18);
+    outline-offset: -1px;
   }
 
   .cover--blank {
