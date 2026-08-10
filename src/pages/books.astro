@@ -100,10 +100,10 @@ const schema = {
               </div>
 
               <div class="work__text">
-                <p class="label">
-                  {book.publisher} — {book.year}
-                  {book.role ? ` — ${book.role}` : ''}
-                </p>
+                {/* Publisher and year alone. The edited volumes sit under
+                    their own heading, which says it better than a suffix on
+                    every row. */}
+                <p class="label">{book.publisher} — {book.year}</p>
 
                 <h3 class="work__title">
                   <a href={u(`/books/${book.slug}`)}>

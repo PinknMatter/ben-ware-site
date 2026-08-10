@@ -34,7 +34,7 @@ export const books = [
       { label: 'Publisher', url: 'https://www.versobooks.com/en-gb/products/2604-on-extinction' },
       { label: 'Amazon', url: 'https://www.amazon.co.uk/Extinction-Beginning-Again-At-End/dp/178873999X' },
     ],
-    hook: 'As we face ‘the end of all things’, extinction becomes the very lens through which to examine our current reality — and beginning again at the end, a form of liberation.',
+    hook: 'Extinction as the very lens through which to examine our current reality – and beginning again at the end as a necessary form of liberation.',
     blurb: [
       'On Extinction takes us on a breathtaking philosophical journey through desperate territory. As we face ‘the end of all things’, Ben Ware argues we must face our apocalyptic future without flinching. In fact, extinction is the very lens through which we should examine our current reality.',
       'Radical politics today should not be concerned with merely averting the worst but rather with beginning again at the end. To think about the future in this way is itself a form of liberation that might incubate the necessary radical solutions we need.',
@@ -91,7 +91,7 @@ export const books = [
       { label: 'Publisher', url: 'https://link.springer.com/book/10.1057/978-1-137-55503-8' },
       { label: 'Amazon', url: 'https://www.amazon.co.uk/Modernism-Ethics-Political-Imagination-Discourse/dp/134971710X' },
     ],
-    hook: 'A bold reassessment of modernism and ethics: modernist literature and philosophy as a crucial point of reference for today’s emancipatory struggles.',
+    hook: 'How can ‘wrong life’ be negated? How can philosophy, psychoanalysis, and modernism serve as crucial points of reference for today’s emancipatory struggles?',
     // The line the catalogue pulls out. Ben chose it and cut it himself; left
     // to itself the page takes the shortest endorsement, which was the Key
     // Words one. The full Lecercle quote is still below in `endorsements`.
@@ -155,7 +155,7 @@ export const books = [
       { label: 'Publisher', url: 'https://www.thamesandhudson.com/products/bacon-disfigured' },
       { label: 'Amazon', url: 'https://www.amazon.co.uk/Bacon-Disfigured-Ben-Ware/dp/0500966656' },
     ],
-    hook: 'Leading philosophers and psychoanalytic theorists do to Bacon what Bacon does to his figures: disfigure and distort him into something new and previously unseen.',
+    hook: 'Leading philosophers and psychoanalytic theorists do to Bacon what Bacon does to his own figures: disfigure and distort him into something new and previously unseen.',
     blurb: [
       'Francis Bacon is undoubtedly one of the most important artists of the twentieth century. In his paintings, Bacon radically disfigures his subjects, making them all but unrecognizable. This is no mere stylistic quirk, but the expression of a deeply held aesthetic vision.',
       'For Bacon, the essence of a subject can only be captured in the distorted recording of its appearance. His disfigurations are therefore, as he himself says, attempts to bring back the intensity of reality, to paint images that are ‘truer than the literal truth’.',

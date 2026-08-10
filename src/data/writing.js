@@ -1,28 +1,21 @@
 // Writing & Media.
 //
-// `writing` is strict reverse-date order, with undated items first pending
-// confirmed years. A row with `url: null` renders as a dated-but-unlinked
-// entry rather than a dead link. `pdf: true` opens a self-hosted PDF.
+// `writing` is a selection of recent essays, latest first. Ben asked for the
+// years and the Essay/Paper/PDF labels off the lists — "they are all essays" —
+// so a row now shows its title and where it appeared, nothing else. The years
+// stay in the data because they are what the order is built on, and `pdf: true`
+// still marks a self-hosted PDF for the link itself.
 //
-// `form` drives the small label at the end of a row — it says what the thing
-// IS, which a bare title cannot.
+// A row with `url: null` renders as an entry awaiting its reference rather
+// than a dead link.
 
 export const writing = [
   {
-    title: 'Cry Harder: On Moral Masochism',
-    venue: null,
-    year: null,
-    url: null,
-    form: 'Essay',
-    todo: 'writing-link',
-  },
-  {
     title: 'Picasso, Bacon and The Time of Monsters',
-    venue: null,
-    year: null,
+    venue: 'in Picasso-Bacon: What it Feels Like to be Human (exhibition catalogue)',
+    year: '2026',
+    // Published, but no online edition or PDF has reached us yet.
     url: null,
-    form: 'Essay',
-    // Client is sending the typeset text.
     todo: 'writing-picasso-bacon',
   },
   {
@@ -31,100 +24,84 @@ export const writing = [
     year: '2026',
     url: '/pdfs/bacon-in-the-cold-world.pdf',
     pdf: true,
-    form: 'Chapter',
   },
   {
     title: 'Kafka and the Politics of Despair',
     venue: 'e-flux Notes',
     year: '2024',
     url: 'https://www.e-flux.com/notes/595494/kafka-and-the-politics-of-despair',
-    form: 'Essay',
   },
   {
     title: 'The Problem of Evil',
     venue: 'TANK',
     year: '2024',
     url: 'https://tank.tv/magazine/issue-100/features/the-problem-of-evil',
-    form: 'Essay',
   },
   {
     title: 'The Sickness of Life: On the Problems with Anti-Natalism',
     venue: 'Lit Hub',
     year: '2024',
     url: 'https://lithub.com/the-sickness-of-life-on-the-problems-with-anti-natalism/',
-    form: 'Essay',
   },
   {
     title: 'Distortion as a Path to Reality',
     venue: 'IAI',
     year: '2024',
     url: 'https://iai.tv/articles/distortion-as-a-path-to-reality-auid-2712',
-    form: 'Essay',
   },
   {
     title: 'Beginning Again at the End: A Dialectics of Extinction',
     venue: 'New Formations',
     year: '2023',
     url: 'https://journals.lwbooks.co.uk/newformations/vol-2022-issue-107/abstract-9669/',
-    form: 'Paper',
   },
   {
     title: 'Death Drive at the End of the World',
     venue: 'e-flux journal',
     year: '2023',
     url: 'https://www.e-flux.com/journal/134/525929/the-death-drive-at-the-end-of-the-world',
-    form: 'Essay',
   },
   {
     title: 'Wittgenstein’s Apocalyptic Subjectivity',
-    venue: null,
+    venue: 'in Wittgenstein and Literary Studies',
     year: '2023',
     url: '/pdfs/wittgensteins-apocalyptic-subjectivity.pdf',
     pdf: true,
-    form: 'Paper',
   },
   {
     title: 'Still Life (with Maria Balaska)',
     venue: 'Los Angeles Review of Books',
     year: '2020',
     url: 'https://lareviewofbooks.org/short-takes/still-life/',
-    form: 'Essay',
   },
   {
     title: 'Nothing But the End to Come? Extinction Fragments',
     venue: 'e-flux journal',
     year: '2020',
     url: 'https://www.e-flux.com/journal/111/345009/nothing-but-the-end-to-come-extinction-fragments',
-    form: 'Essay',
   },
   {
     title: 'Excremental Happiness: From Neurotic Hedonism to Dialectical Pessimism',
-    venue: null,
+    venue: 'College Literature',
     year: '2018',
     url: '/pdfs/excremental-happiness.pdf',
     pdf: true,
-    form: 'Paper',
   },
 ];
 
-// Interviews carry no date in the client's source material; "n.d." is the
-// bibliographic convention and is what the lists render for a missing year.
+// Interviews. Ben confirmed the dates are not wanted, so none is carried.
 export const interviews = [
   {
     title: 'Welcome to Hell',
     with: 'in conversation with Shane Anderson',
     venue: '032C',
-    year: null,
     url: 'https://magazine.032c.com/magazine/welcome-to-hell-ben-ware-on-extinction',
-    todo: 'interview-dates',
   },
   {
     title: 'Philosophy, Apocalypse and Revolution',
     with: 'in conversation with Richard Marshall',
     venue: '3:16',
-    year: null,
     url: 'https://www.3-16am.co.uk/articles/philosophy-apocalypse-and-revolution',
-    todo: 'interview-dates',
   },
 ];
 
@@ -138,35 +115,30 @@ export const videos = [
     venue: null,
     year: '2024',
     url: 'https://www.youtube.com/watch?v=_MZFQXOyk7E',
-    form: 'Conversation',
   },
   {
     title: 'Philosophy at the End of the World',
-    venue: 'How The Light Gets In',
+    venue: 'How The Light Gets In Festival',
     year: '2024',
     url: 'https://iai.tv/video/philosophy-at-the-end-of-the-world',
-    form: 'Panel',
   },
   {
     title: 'Has Human Extinction Already Started?',
-    venue: 'Sunday Papers Live',
+    venue: 'Sunday Papers Live, London',
     year: '2024',
     url: 'https://www.youtube.com/watch?v=l4PL3GwGonQ&t=7s',
-    form: 'Talk',
   },
   {
     title: 'The Death Drive at the End of the World',
     venue: 'BICAR with Warehouse 421',
     year: '2023',
     url: 'https://www.youtube.com/watch?v=xGCnqsDl5vs',
-    form: 'Lecture',
   },
   {
     title: 'Wittgenstein’s Modernism',
     venue: '21st British Wittgenstein Society Lecture',
     year: '2019',
     url: 'https://vimeo.com/346410118?fl=pl&fe=vl',
-    form: 'Lecture',
   },
 ];
 

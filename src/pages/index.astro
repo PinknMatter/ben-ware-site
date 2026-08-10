@@ -7,8 +7,8 @@
 // the right. Below it the page turns scholarly — small-caps heads, ranged
 // lists, a wide column for the books because they are the reason to be here.
 //
-// The flair is one pen, used sparingly: the rule under the name, the mark under
-// "extinction", the signature, and the rules between sections.
+// The flair is one pen, used sparingly: the rule under the name, the
+// signature, and the rules between sections.
 import Page from '../layouts/Page.astro';
 import Flourish from '../components/Flourish.astro';
 import Signature from '../components/Signature.astro';
@@ -31,11 +31,14 @@ const leadTitle = splitTitle(lead.title);
 const selectedWriting = writing.filter((w) => w.url && w.venue).slice(0, 5);
 
 const media = [
-  ...interviews.map((i) => ({ title: i.title, meta: i.venue, year: i.year, url: i.url })),
+  ...interviews.map((i) => ({
+    title: i.title,
+    meta: [i.venue, i.with].filter(Boolean).join(', '),
+    url: i.url,
+  })),
   ...videos.slice(0, 3).map((v) => ({
     title: v.title,
     meta: v.venue ?? v.with,
-    year: v.year,
     url: v.url,
   })),
 ];
@@ -83,22 +86,18 @@ const schema = {
 
       <Flourish variant="short" draw={false} data-intro="1" />
 
+      <!-- Ben's own sequence for the opening: the two roles set upright, then
+           a line of his in italics, then his signature. The quote is from On
+           Extinction and he asked for it unattributed here — on his own page
+           it reads as him speaking, not as a citation. -->
       <p class="title__role">{site.role}</p>
+      <p class="title__role">{site.appointment}</p>
 
-      <p class="title__lede" data-todo="biog-copy-revision">
-        Philosophy that begins at the end — taking
-        <a class="marked" href={u('/books/on-extinction')}>
-          extinction
-          <svg class="marked__rule" viewBox="0 0 300 30" aria-hidden="true" data-intro="2">
-            <path class="ink" d="M6,15 C72,6 156,24 228,12 C258,6 282,18 294,12"></path>
-          </svg>
-        </a>
-        as the lens through which to read the present. Co-Director of the Centre for Philosophy and
-        Art at King’s College London.
-      </p>
+      <blockquote class="title__quote">
+        <p>{site.statement}</p>
+      </blockquote>
 
-      <Signature data-intro="3" />
-
+      <Signature data-intro="2" />
     </div>
   </section>
 
@@ -155,7 +154,6 @@ const schema = {
               <span class="shelf__title">{book.shortTitle}</span>
               <span class="shelf__meta">
                 {book.publisher}, {book.year}
-                {book.role ? ` — as ${book.role}` : ''}
               </span>
             </a>
           </li>
@@ -181,7 +179,6 @@ const schema = {
                 <span class="entry__title">{item.title}</span>
                 <span class="entry__meta">{item.venue}</span>
               </span>
-              <span class="tag">{item.pdf ? 'PDF' : item.form}</span>
             </a>
           </li>
         ))
@@ -219,10 +216,17 @@ const schema = {
     <h2 class="label" id="h-enquiries">Enquiries</h2>
     <div>
       <p class="lede">
-        Ben is represented by {representation.agent} at
+        Ben is represented by
         <a class="link" href={representation.agencyUrl} target="_blank" rel="noopener"
-          ><span class="nowrap">{representation.agency}</span></a
-        >.
+          >{representation.agent}</a
+        > at <span class="nowrap">{representation.agency}</span>.
+      </p>
+
+      <!-- His university address, already public. Rights, press and speaking
+           go through the agency; this is for everything else. -->
+      <p class="enquiries__direct">
+        Academic enquiries:
+        <a class="link" href={`mailto:${representation.email}`}>{representation.email}</a>
       </p>
     </div>
   </section>
@@ -252,43 +256,38 @@ const schema = {
     letter-spacing: -0.015em;
   }
 
+  /* Upright, at Ben's request: the roles are plain fact, and setting them in
+     italic made them compete with the statement below, which is the line that
+     should carry the voice. */
   .title__role {
-    margin: var(--sp-md) 0 0;
-    font-style: italic;
-    font-size: clamp(1.1rem, 1.5vw, 1.35rem);
+    margin: var(--sp-sm) 0 0;
+    font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+    line-height: 1.45;
     color: var(--ink-60);
+    /* Wide enough to keep "Philosophy and Art" together; balance stops the
+       second line becoming a stub. */
+    max-width: 46ch;
+    text-wrap: balance;
   }
 
-  .title__lede {
+  .title__role:first-of-type {
+    margin-top: var(--sp-md);
+  }
+
+  /* His own line, and the only italic in the block. No quotation marks and no
+     attribution: it is not a citation here, it is him. */
+  .title__quote {
     margin: var(--sp-lg) 0 0;
-    max-width: 42ch;
-    font-size: clamp(1.1rem, 1.5vw, 1.3rem);
-    line-height: 1.6;
+    max-width: 40ch;
   }
 
-  /* A phrase with a drawn rule under it — the one mark inside the text. */
-  .marked {
-    position: relative;
-    display: inline-block;
-    white-space: nowrap;
-  }
-
-  .marked:hover {
-    color: var(--accent);
-  }
-
-  .marked:hover :global(.ink) {
-    stroke: var(--accent);
-  }
-
-  .marked__rule {
-    position: absolute;
-    left: -0.15em;
-    bottom: -0.3em;
-    width: calc(100% + 0.3em);
-    height: auto;
-    overflow: visible;
-    pointer-events: none;
+  .title__quote p {
+    margin: 0;
+    font-family: var(--display);
+    font-style: italic;
+    font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+    line-height: 1.45;
+    color: var(--ink);
   }
 
   /* ------------------------------------------------------------------
@@ -421,6 +420,10 @@ const schema = {
     padding-top: var(--sp-2xl);
   }
 
+  .enquiries__direct {
+    margin: var(--sp-md) 0 0;
+    color: var(--ink-60);
+  }
 
   /* ------------------------------------------------------------------
      Narrow leaf: the plate leads, then the type.

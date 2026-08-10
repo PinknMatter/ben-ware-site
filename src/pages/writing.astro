@@ -66,7 +66,6 @@ const sections = [
                   <span class="entry__title">{item.title}</span>
                   {item.venue && <span class="entry__meta">{item.venue}</span>}
                 </span>
-                <span class="tag">{item.pdf ? 'PDF' : item.form}</span>
               </a>
             </li>
           ) : (
@@ -76,8 +75,8 @@ const sections = [
               <span class="entry entry--plain entry--pending" data-todo={item.todo}>
                 <span class="entry__text">
                   <span class="entry__title">{item.title}</span>
+                  {item.venue && <span class="entry__meta">{item.venue}</span>}
                 </span>
-                <span class="tag">{item.form}</span>
               </span>
             </li>
           )
@@ -124,7 +123,6 @@ const sections = [
                   <span class="entry__meta">{item.venue ?? item.with}</span>
                 )}
               </span>
-              <span class="tag">{item.form}</span>
             </a>
           </li>
         ))

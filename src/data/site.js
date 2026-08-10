@@ -5,6 +5,13 @@
 export const site = {
   name: 'Ben Ware',
   role: 'Philosopher and social theorist',
+  // The second role line on the homepage. Ben asked for both set upright,
+  // with the statement below them in italics — role, then voice, then hand.
+  appointment: 'Co-Director of the Centre for Philosophy and Art at King’s College London',
+  // His own line, from On Extinction. Deliberately unattributed here: on his
+  // own page it reads as him speaking rather than as a citation.
+  statement:
+    'It is only by seeing our crisis-ridden present from sidewise on – through the ‘distorting’ lens of philosophy and culture – that we come to discover new openings for political thought and action',
   place: 'London, UK',
 
   // Absolute origin + base, used for canonical URLs, Open Graph and the
@@ -12,7 +19,7 @@ export const site = {
   origin: 'https://pinknmatter.github.io',
 
   description:
-    'Ben Ware is a philosopher and social theorist based in London. Author of On Extinction: Beginning Again at the End (Verso) and Co-Director of the Centre for Philosophy and Art at King’s College London.',
+    'Ben Ware is a philosopher and social theorist based in London. Author of numerous books, including On Extinction: Beginning Again at the End (Verso) and Co-Director of the Centre for Philosophy and Art at King’s College London.',
 
   // Shown in the running head and the colophon.
   nav: [
@@ -29,33 +36,39 @@ export const site = {
 // `label` is the shorter form the colophon uses, where there is no room to set
 // both lines.
 //
-// The KCL address was 404ing on ...centre-for-philosophy-and-visual-arts; the
-// centre's own page is ...centre-for-philosophy-and-art, and "Centre for
-// Philosophy and Art" is the name it publishes itself under.
+// The links are Ben's own: the Centre keeps its own site rather than living on
+// kcl.ac.uk, and BICAR's faculty page is where he actually appears.
 export const affiliations = [
   {
     label: 'KCL Centre for Philosophy & Art',
     role: 'Co-Director of the Centre for Philosophy & Art; Senior Research Fellow in Philosophy',
     org: 'King’s College London',
-    url: 'https://www.kcl.ac.uk/research/centre-for-philosophy-and-art',
+    url: 'https://philosophyarts.co.uk/about',
   },
   {
     label: 'BICAR',
     role: 'Faculty',
     org: 'Bombay Institute for Critical Analysis and Research',
-    url: 'https://www.bicar.org',
+    url: 'https://www.bicar.org/faculty',
   },
 ];
 
 // Representation.
 //
-// The host has flipped since this was last checked: www.cwagency.co.uk no
-// longer resolves at all and the apex does. C&W publish no stable per-agent
-// page, so Clare's name is set as text and the link goes to the agency.
+// Ben gave two C&W addresses and asked which to use where. This is the agent
+// page, because it is the one that leads to a person: enquiries reach Clare's
+// PA through the agency office, which is what he asked for, and no private
+// address is published. The other — .../clare-conville/clients — only lists
+// her authors. It evidences the relationship but offers no way to make
+// contact, so it is recorded here rather than linked.
+//
+// `email` is his KCL address, already in the public domain, for direct
+// academic contact. Rights, press and speaking still go through the agency.
 export const representation = {
   agent: 'Clare Conville',
   agency: 'C&W Agency',
-  agencyUrl: 'https://cwagency.co.uk/',
+  agencyUrl: 'https://cwagency.co.uk/agent/clare-conville',
+  email: 'Benjamin.ware@kcl.ac.uk',
 };
 
 // The signature under the title block.
