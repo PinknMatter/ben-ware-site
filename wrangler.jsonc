@@ -1,0 +1,22 @@
+{
+  // Cloudflare deploy config.
+  //
+  // This file exists mainly to STOP wrangler configuring the project for us.
+  // With no config present, `wrangler deploy` auto-detects Astro and runs
+  // `astro add cloudflare`, which installs the SSR adapter, rewrites
+  // astro.config.mjs, rebuilds in server mode and emits dist/_worker.js — then
+  // refuses to upload that directory as a public asset and fails the build.
+  //
+  // The site is entirely static: thirteen prerendered pages and some images.
+  // There is nothing to run on a server, so there is no `main` here. A wrangler
+  // config with `assets` and no `main` deploys static files and nothing else.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ben-ware-site",
+  "compatibility_date": "2026-08-12",
+  "assets": {
+    "directory": "./dist",
+    // The site ships its own 404 page; serve it for anything unmatched rather
+    // than Cloudflare's default.
+    "not_found_handling": "404-page"
+  }
+}
