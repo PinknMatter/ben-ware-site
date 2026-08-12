@@ -11,7 +11,7 @@ export const site = {
   // His own line, from On Extinction. Deliberately unattributed here: on his
   // own page it reads as him speaking rather than as a citation.
   statement:
-    'It is only by seeing our crisis-ridden present from sidewise on – through the ‘distorting’ lens of philosophy and culture – that we come to discover new openings for political thought and action',
+    'It is only by seeing our crisis-ridden present from sideways on – through the ‘distorting’ lens of philosophy and culture – that we come to discover new openings for political thought and action',
   place: 'London, UK',
 
   // Absolute origin + base, used for canonical URLs, Open Graph and the
