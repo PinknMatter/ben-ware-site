@@ -1,4 +1,14 @@
-name: Deploy to GitHub Pages
+# The site is deployed to benware.net by Cloudflare, which builds this repo
+# itself — there is no build step here any more.
+#
+# All this publishes to GitHub Pages is a redirect to benware.net. The old
+# address (pinknmatter.github.io/ben-ware-site) is in the client's email
+# thread; left alone, GitHub Pages would keep serving the last build it made
+# forever, so the alternative to this is a stale second copy of the site.
+#
+# To switch the old address off completely instead: delete this workflow and
+# set Settings → Pages → Source to None.
+name: Redirect the old GitHub Pages address to benware.net
 
 on:
   push:
@@ -10,36 +20,22 @@ permissions:
   pages: write
   id-token: write
 
-# Only one deploy at a time; a newer push supersedes an in-flight one.
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - run: npm ci
-
-      - run: npm run build
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./redirect
+
       - id: deployment
         uses: actions/deploy-pages@v4

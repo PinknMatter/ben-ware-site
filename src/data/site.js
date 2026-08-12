@@ -14,10 +14,6 @@ export const site = {
     'It is only by seeing our crisis-ridden present from sideways on – through the ‘distorting’ lens of philosophy and culture – that we come to discover new openings for political thought and action',
   place: 'London, UK',
 
-  // Absolute origin + base, used for canonical URLs, Open Graph and the
-  // sitemap. Must match astro.config.mjs.
-  origin: 'https://pinknmatter.github.io',
-
   description:
     'Ben Ware is a philosopher and social theorist based in London. Author of numerous books, including On Extinction: Beginning Again at the End (Verso) and Co-Director of the Centre for Philosophy and Art at King’s College London.',
 
@@ -55,12 +51,12 @@ export const affiliations = [
 
 // Representation.
 //
-// Ben gave two C&W addresses and asked which to use where. This is the agent
-// page, because it is the one that leads to a person: enquiries reach Clare's
-// PA through the agency office, which is what he asked for, and no private
-// address is published. The other — .../clare-conville/clients — only lists
-// her authors. It evidences the relationship but offers no way to make
-// contact, so it is recorded here rather than linked.
+// Ben gave two C&W addresses and asked which to use where. The agent page is
+// the one linked, in both Enquiries and the Representation panel: it is the
+// route to a person — enquiries reach Clare's PA through the agency office —
+// and no private address is published. The clients page is only an
+// alphabetical list of her authors; it evidences the relationship but takes
+// a visitor nowhere useful, so it is recorded here and not linked.
 //
 // `email` is his KCL address, already in the public domain, for direct
 // academic contact. Rights, press and speaking still go through the agency.
@@ -68,6 +64,7 @@ export const representation = {
   agent: 'Clare Conville',
   agency: 'C&W Agency',
   agencyUrl: 'https://cwagency.co.uk/agent/clare-conville',
+  clientsUrl: 'https://cwagency.co.uk/agent/clare-conville/clients',
   email: 'Benjamin.ware@kcl.ac.uk',
 };
 

@@ -14,9 +14,8 @@ export const writing = [
     title: 'Picasso, Bacon and The Time of Monsters',
     venue: 'in Picasso-Bacon: What it Feels Like to be Human (exhibition catalogue)',
     year: '2026',
-    // Published, but no online edition or PDF has reached us yet.
-    url: null,
-    todo: 'writing-picasso-bacon',
+    url: '/pdfs/picasso-bacon-and-the-time-of-monsters.pdf',
+    pdf: true,
   },
   {
     title: 'Bacon in the Cold World: On Wagers, Wounds and Real Abstraction',
