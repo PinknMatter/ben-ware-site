@@ -74,9 +74,9 @@ const imageUrl = new URL(u(image), Astro.site ?? 'http://localhost:4321');
 
     <meta name="theme-color" content="#ffffff" />
 
-    <!-- A Courier "B", traced to paths so no font needs to be installed. The
-         SVG serves the browsers that take it; the PNGs are Safari's tab icon
-         and the home-screen tile. -->
+    <!-- A "B" in Libre Caslon, the site's own titling face, traced to paths
+         so no font needs to be installed. The SVG serves the browsers that
+         take it; the PNGs are Safari's tab icon and the home-screen tile. -->
     <link rel="icon" href={u('/favicon.svg')} type="image/svg+xml" />
     <link rel="icon" href={u('/favicon-32.png')} sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href={u('/apple-touch-icon.png')} />
