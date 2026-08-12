@@ -84,5 +84,9 @@ export const signature = {
   height: 0,
 };
 
-// Fallback social/preview image until artwork is supplied.
-export const ogImage = '/images/ben-ware-portrait.jpg';
+// The default social card: the portrait composed onto a 1200×630 white
+// canvas, in public/og/ alongside one card per book cover. The cards are
+// JPEGs because the covers themselves are AVIF, which the link-preview
+// scrapers (WhatsApp, Slack, iMessage, Facebook) mostly cannot decode — and
+// 1200×630 is the one size every card renderer takes without cropping.
+export const ogImage = '/og/ben-ware.jpg';

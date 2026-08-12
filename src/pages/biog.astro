@@ -18,12 +18,28 @@ import { site, affiliations, representation } from '../data/site.js';
 import { u } from '../lib/url.js';
 
 const works = [...books].sort((a, b) => Number(b.year) - Number(a.year));
+
+const origin = Astro.site ?? 'http://localhost:4321';
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  url: new URL(u('/biog'), origin).href,
+  mainEntity: {
+    '@type': 'Person',
+    '@id': new URL(u('/'), origin).href + '#ben-ware',
+    name: site.name,
+    jobTitle: site.role,
+    image: new URL(u('/images/ben-ware-portrait.jpg'), origin).href,
+    affiliation: affiliations.map((a) => ({ '@type': 'Organization', name: a.org, url: a.url })),
+  },
+};
 ---
 
 <Page
   title="Biog — Ben Ware"
   socialTitle="Biog"
   description="Ben Ware is a philosopher and social theorist based in London, Co-Director of the Centre for Philosophy and Art at King's College London."
+  schema={schema}
 >
   <!-- No display title here: the page opens on the first word of the biography
        itself. The h1 stays in the markup but is set for screen readers only —

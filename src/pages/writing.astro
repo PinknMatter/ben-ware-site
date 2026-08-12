@@ -15,12 +15,32 @@ const sections = [
   { id: 'interviews', label: 'Interviews', count: interviews.length },
   { id: 'talks', label: 'Recent talks & lectures', count: videos.length },
 ];
+
+const origin = Astro.site ?? 'http://localhost:4321';
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Writing & Media — Ben Ware',
+  url: new URL(u('/writing'), origin).href,
+  inLanguage: 'en',
+  about: { '@type': 'Person', '@id': new URL(u('/'), origin).href + '#ben-ware', name: 'Ben Ware' },
+  // The readable essays, as the list a crawler should take away.
+  hasPart: writing
+    .filter((w) => w.url)
+    .map((w) => ({
+      '@type': 'Article',
+      headline: w.title,
+      url: new URL(u(w.url), origin).href,
+      datePublished: w.year,
+    })),
+};
 ---
 
 <Page
   title="Writing & Media — Ben Ware"
   socialTitle="Writing & Media"
   description="Essays, papers, interviews and recorded talks by Ben Ware — philosopher and social theorist."
+  schema={schema}
 >
   <div class="page-head">
     <h1 class="page-head__title">Writing</h1>

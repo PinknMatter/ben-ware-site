@@ -8,14 +8,24 @@ interface Props {
   title: string;
   description?: string;
   socialTitle?: string;
-  schema?: object | null;
+  schema?: object | object[] | null;
   image?: string;
+  imageAlt?: string;
+  ogType?: string;
 }
 
-const { title, description, socialTitle, schema, image } = Astro.props;
+const { title, description, socialTitle, schema, image, imageAlt, ogType } = Astro.props;
 ---
 
-<Base title={title} description={description} socialTitle={socialTitle} schema={schema} image={image}>
+<Base
+  title={title}
+  description={description}
+  socialTitle={socialTitle}
+  schema={schema}
+  image={image}
+  imageAlt={imageAlt}
+  ogType={ogType}
+>
   <a class="skip" href="#main">Skip to content</a>
   <Nav />
   <main id="main" class="measure">

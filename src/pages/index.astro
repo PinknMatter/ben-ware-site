@@ -44,9 +44,10 @@ const media = [
 ];
 
 const origin = Astro.site ?? 'http://localhost:4321';
-const schema = {
+const person = {
   '@context': 'https://schema.org',
   '@type': 'Person',
+  '@id': new URL(u('/'), origin).href + '#ben-ware',
   name: site.name,
   jobTitle: site.role,
   description: site.description,
@@ -55,6 +56,17 @@ const schema = {
   affiliation: affiliations.map((a) => ({ '@type': 'Organization', name: a.org, url: a.url })),
   knowsAbout: ['Philosophy', 'Critical theory', 'Psychoanalysis', 'Modernism', 'Ethics'],
 };
+const schema = [
+  person,
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: site.name,
+    url: new URL(u('/'), origin).href,
+    inLanguage: 'en',
+    about: { '@id': person['@id'] },
+  },
+];
 ---
 
 <Page title="Ben Ware — Philosopher and social theorist" socialTitle="Ben Ware" schema={schema}>

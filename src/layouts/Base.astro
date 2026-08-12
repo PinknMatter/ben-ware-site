@@ -10,9 +10,13 @@ interface Props {
   description?: string;
   /** Overrides the <title> used for social cards, which wants no site suffix. */
   socialTitle?: string;
-  /** JSON-LD, serialised into a script tag. */
-  schema?: object | null;
+  /** JSON-LD, serialised into a script tag. An array is also valid JSON-LD. */
+  schema?: object | object[] | null;
+  /** A 1200×630 card from public/og/ — the width/height meta assert that. */
   image?: string;
+  imageAlt?: string;
+  /** og:type — "book" on a book's page, "website" everywhere else. */
+  ogType?: string;
 }
 
 const {
@@ -21,6 +25,8 @@ const {
   socialTitle,
   schema = null,
   image = ogImage,
+  imageAlt = site.name,
+  ogType = 'website',
 } = Astro.props;
 
 // Astro.site is the deployment origin; pathname already carries the base path,
@@ -50,16 +56,21 @@ const imageUrl = new URL(u(image), Astro.site ?? 'http://localhost:4321');
     <link rel="canonical" href={canonical.href} />
     <meta name="author" content={site.name} />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="en_GB" />
     <meta property="og:title" content={socialTitle ?? title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical.href} />
     <meta property="og:image" content={imageUrl.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={socialTitle ?? title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl.href} />
+    <meta name="twitter:image:alt" content={imageAlt} />
 
     <meta name="theme-color" content="#ffffff" />
 
