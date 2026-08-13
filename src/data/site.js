@@ -7,11 +7,14 @@ export const site = {
   role: 'Philosopher and social theorist',
   // The second role line on the homepage. Ben asked for both set upright,
   // with the statement below them in italics — role, then voice, then hand.
-  appointment: 'Co-Director of the Centre for Philosophy and Art at King’s College London',
+  // Comma, not "at": this is a standalone credit line, where the convention is
+  // Title, Institution. In flowing prose — the biography, the meta
+  // descriptions — "at" is still correct and is left alone.
+  appointment: 'Co-Director of the Centre for Philosophy and Art, King’s College London',
   // His own line, from On Extinction. Deliberately unattributed here: on his
   // own page it reads as him speaking rather than as a citation.
   statement:
-    'It is only by seeing our crisis-ridden present from sideways on – through the ‘distorting’ lens of philosophy and culture – that we come to discover new openings for political thought and action',
+    'It is only by seeing our crisis-ridden present from sideways on – through the ‘distorting’ lens of philosophy and culture – that we come to discover new openings for political thought and action.',
   place: 'London, UK',
 
   description:
