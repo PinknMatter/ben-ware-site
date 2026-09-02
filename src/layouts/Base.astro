@@ -3,7 +3,7 @@
 // page furniture is in Page.astro.
 import '../styles/global.css';
 import { site, ogImage } from '../data/site.js';
-import { u } from '../lib/url.js';
+import { u, pagePath } from '../lib/url.js';
 
 interface Props {
   title: string;
@@ -17,6 +17,9 @@ interface Props {
   imageAlt?: string;
   /** og:type — "book" on a book's page, "website" everywhere else. */
   ogType?: string;
+  /** Keeps the page out of search. Also drops the canonical, since a page that
+   *  must not be indexed has nothing to be canonical for. */
+  noindex?: boolean;
 }
 
 const {
@@ -27,12 +30,15 @@ const {
   image = ogImage,
   imageAlt = site.name,
   ogType = 'website',
+  noindex = false,
 } = Astro.props;
 
 // Astro.site is the deployment origin; pathname already carries the base path,
 // so this is the real public address of the page in production and a harmless
-// approximation in dev.
-const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site ?? 'http://localhost:4321');
+// approximation in dev. pagePath() takes off the ".html" the file-format build
+// leaves on it — the canonical must be the address Cloudflare serves, which is
+// also the one the sitemap lists, or Google treats the two as different pages.
+const canonical = new URL(pagePath(Astro.url.pathname), Astro.site ?? 'http://localhost:4321');
 const imageUrl = new URL(u(image), Astro.site ?? 'http://localhost:4321');
 ---
 
@@ -53,7 +59,7 @@ const imageUrl = new URL(u(image), Astro.site ?? 'http://localhost:4321');
 
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical.href} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical.href} />}
     <meta name="author" content={site.name} />
 
     <meta property="og:type" content={ogType} />

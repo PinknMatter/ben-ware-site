@@ -12,9 +12,10 @@ interface Props {
   image?: string;
   imageAlt?: string;
   ogType?: string;
+  noindex?: boolean;
 }
 
-const { title, description, socialTitle, schema, image, imageAlt, ogType } = Astro.props;
+const { title, description, socialTitle, schema, image, imageAlt, ogType, noindex } = Astro.props;
 ---
 
 <Base
@@ -25,6 +26,7 @@ const { title, description, socialTitle, schema, image, imageAlt, ogType } = Ast
   image={image}
   imageAlt={imageAlt}
   ogType={ogType}
+  noindex={noindex}
 >
   <a class="skip" href="#main">Skip to content</a>
   <Nav />

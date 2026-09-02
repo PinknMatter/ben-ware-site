@@ -18,3 +18,21 @@ export function u(path) {
   if (!path.startsWith('/')) return path; // http(s):, mailto:, #anchor, relative
   return `${BASE.replace(/\/$/, '')}${path}`;
 }
+
+// The public path of the page being rendered — "/books", never "/books/" and
+// never "/books.html".
+//
+// Astro.url.pathname is the path of the OUTPUT FILE at build time, and the
+// site builds with `build.format: 'file'` (see astro.config.mjs), so a page
+// sees itself as "/books.html". That suffix is a fact about the file on disk,
+// not the address: Cloudflare serves "books.html" at "/books". Anything that
+// wants the page's address — the canonical tag, the nav's current-page
+// comparison — should go through this rather than read the pathname raw.
+export function pagePath(pathname) {
+  return (
+    pathname
+      .replace(/\.html$/, '')
+      .replace(/\/index$/, '')
+      .replace(/\/$/, '') || '/'
+  );
+}

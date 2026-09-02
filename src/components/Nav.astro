@@ -16,9 +16,9 @@
 // flow and was then hidden, which read as the menu flashing open on every
 // page load.
 import { site } from '../data/site.js';
-import { u } from '../lib/url.js';
+import { u, pagePath } from '../lib/url.js';
 
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const path = pagePath(Astro.url.pathname);
 const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 // Astro.url.pathname carries the deployment base; strip it so the comparison
 // is against the same "/books" the nav is written with.
